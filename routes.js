@@ -62,7 +62,7 @@ router.post("/users", async (req, res) => {
     email: req.body.email,
     dateOfBirth: req.body.dateOfBirth,
     image: req.body.image,
-    gender: req.gender,
+    gender: req.body.gender,
   });
   await user.save();
   res.send(user);
@@ -91,10 +91,12 @@ router.put("/users/:id", async (req, res) => {
 
 //  DELETE để xóa một user
 router.delete("/users/:id", async (req, res) => {
-  const user = await User.findByIdAndRemove(req.params.id);
+  const user = await User.findByIdAndDelete(req.params.id);
 
   if (!user)
     return res.status(404).send("The user with the given ID was not found.");
 
   res.send(user);
 });
+
+module.exports = router;

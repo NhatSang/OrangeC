@@ -24,11 +24,11 @@ const messageSchema = new mongoose.Schema({
   content: String,
   senderId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   receiverId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  createAt: Date,
+  createAt: { type: Date, default: Date.now },
 });
 const Message = mongoose.model("Message", messageSchema);
 const stickerSchema = new mongoose.Schema({
   urlImage: String,
 });
 const Sticker = mongoose.model("Sticker", stickerSchema);
-module.exports = {Account,User,FriendRequest,Message,Sticker}
+module.exports = { Account, User, FriendRequest, Message, Sticker };
