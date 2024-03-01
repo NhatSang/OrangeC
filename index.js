@@ -5,7 +5,8 @@ const routes = require("./routes");
 const http = require("http");
 const socketIo = require("socket.io");
 const { Message } = require("./models");
-const cros = require("cors")
+const cros = require("cors");
+const { log } = require("console");
 
 const app = express();
 app.use(cros());
@@ -32,26 +33,27 @@ let socketToUserIdMap = {};
 
 io.on("connection", (socket) => {
   console.log("new user connection" + socket.id);
-  socket.on("chat message",async (msg) => {
+  socket.on("chat message", async (msg) => {
     const senderId = socketToUserIdMap[socket.id];
     const receiverId = Object.keys(socketToUserIdMap).find(
       (key) => socketToUserIdMap[key] === msg.receiverId
     );
+
     const message = new Message({content:msg.message,senderId:senderId,receiverId:msg.receiverId});
     await message.save();
-    if(receiverId){
-        io.to(receiverId).emit('chat message',{message:msg.message, sender: senderId});
-    }else{
-        
+
+    if (receiverId) {
+      io.to(receiverId).emit('chat message',{message:msg.message, sender: senderId});
+    } else {
     }
   });
-  socket.on('user login', (userId)=>{
+  socket.on("user login", (userId) => {
     socketToUserIdMap[socket.id] = userId;
-  })
+  });
 
-  socket.on('disconnect',()=>{
+  socket.on("disconnect", () => {
     delete socketToUserIdMap[socket.io];
-  })
+  });
 });
 
 app.use("/api", routes);
