@@ -5,11 +5,18 @@ const routes = require("./routes");
 const http = require("http");
 const socketIo = require("socket.io");
 const { Message } = require("./models");
+const cros = require("cors")
 
 const app = express();
+app.use(cros());
 const PORT = process.env.PORT || 3000;
 const server = http.createServer(app);
-const io = socketIo(server);
+
+const options = {
+  cors: true,
+  origins: ["http://localhost:3000"],
+};
+const io = require("socket.io")(server, options);
 
 app.use(bodyParser.json());
 
@@ -48,4 +55,4 @@ io.on("connection", (socket) => {
 });
 
 app.use("/api", routes);
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+server.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
