@@ -108,9 +108,9 @@ const register = asyncHandler(async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
     const account = new Account({
-        email: req.body.email,
+        username: req.body.email,
         password: hashedPassword,
-        user: user._id
+        userId: user._id
     });
 
     await user.save();
@@ -125,6 +125,30 @@ const register = asyncHandler(async (req, res) => {
 
 });
 
+const login = asyncHandler(async (req, res) => {
+    const {username, password} = req.body;
+    console.log(username);
+    const existingEmail = await Account.findOne({ username: username});
+    if (!existingEmail) {
+         res.status(403);
+         throw new Error("Email not found");
+    }
+    console.log(existingEmail);
+    const validPassword = await bcrypt.compare(password, existingEmail.password);
+    console.log(validPassword)
+    if (!validPassword) {
+         res.status(401);
+         throw new Error("Email or Password is incorrect");
+    }
+    const user = await User.findOne({ _id: existingEmail.userId});
+
+    res.status(200).json({ 
+        message: "Login successfully",
+        user,
+        accessToken: await getJwt(username, existingEmail.userId)
+     });
+});
 
 
-module.exports = { createUser, getAllUser, updateUser, deleteUser, register }
+
+module.exports = { createUser, getAllUser, updateUser, deleteUser, register,login }
