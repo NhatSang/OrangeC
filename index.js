@@ -1,12 +1,13 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-const routes = require("./routes");
 const http = require("http");
 const socketIo = require("socket.io");
-const { Message } = require("./models");
 const cros = require("cors");
 const { log } = require("console");
+const Message = require("./models/Message");
+const userRouter = require("./routers/userRouter");
+const accountRouter = require("./routers/accountRouter");
 
 const app = express();
 app.use(cros());
@@ -56,5 +57,7 @@ io.on("connection", (socket) => {
   });
 });
 
-app.use("/api", routes);
+app.get("/", (req, res) => {res.send("SERVER IS RUNNING")});
+app.use("/api/v1",userRouter);
+app.use("/api/v1",accountRouter);
 server.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
