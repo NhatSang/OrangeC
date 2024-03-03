@@ -8,9 +8,16 @@ const { log } = require("console");
 const Message = require("./models/Message");
 const userRouter = require("./routers/userRouter");
 const accountRouter = require("./routers/accountRouter");
-
+const error = require("./middlewares/responseMiddleware");
 const app = express();
+require("dotenv").config();
 app.use(cros());
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+
+
 const PORT = process.env.PORT || 3000;
 const server = http.createServer(app);
 
@@ -60,4 +67,7 @@ io.on("connection", (socket) => {
 app.get("/", (req, res) => {res.send("SERVER IS RUNNING")});
 app.use("/api/v1",userRouter);
 app.use("/api/v1",accountRouter);
+app.use(error);
+
+
 server.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
