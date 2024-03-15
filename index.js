@@ -10,14 +10,13 @@ const userRouter = require("./routers/userRouter");
 const accountRouter = require("./routers/accountRouter");
 const authRouter = require("./routers/authRouter");
 const error = require("./middlewares/responseMiddleware");
+const { default: connectDB } = require("./db/connectDB");
 const app = express();
 require("dotenv").config();
 app.use(cros());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-
 
 const PORT = process.env.PORT || 3000;
 const server = http.createServer(app);
@@ -29,12 +28,6 @@ const options = {
 const io = require("socket.io")(server, options);
 
 app.use(bodyParser.json());
-
-//connect mongoDB
-mongoose
-  .connect("mongodb://0.0.0.0:27017/mydatabase")
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.error("Could not connect to MongoDB", err));
 
 // handle chat
 
@@ -48,11 +41,18 @@ io.on("connection", (socket) => {
       (key) => socketToUserIdMap[key] === msg.receiverId
     );
 
-    const message = new Message({content:msg.message,senderId:senderId,receiverId:msg.receiverId});
+    const message = new Message({
+      content: msg.message,
+      senderId: senderId,
+      receiverId: msg.receiverId,
+    });
     await message.save();
 
     if (receiverId) {
-      io.to(receiverId).emit('chat message',{message:msg.message, sender: senderId});
+      io.to(receiverId).emit("chat message", {
+        message: msg.message,
+        sender: senderId,
+      });
     } else {
     }
   });
@@ -65,11 +65,15 @@ io.on("connection", (socket) => {
   });
 });
 
-app.get("/", (req, res) => {res.send("SERVER IS RUNNING")});
-app.use("/api/v1",userRouter);
-app.use("/api/v1",accountRouter);
-app.use("/api/v1",authRouter);
+app.get("/", (req, res) => {
+  res.send("SERVER IS RUNNING");
+});
+app.use("/api/v1", userRouter);
+app.use("/api/v1", accountRouter);
+app.use("/api/v1", authRouter);
 app.use(error);
 
-
-server.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+server.listen(PORT, () => {
+  connectDB();
+  console.log(`Server is running on port ${PORT}`);
+});
