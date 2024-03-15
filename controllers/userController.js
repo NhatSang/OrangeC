@@ -96,12 +96,12 @@ const register = asyncHandler(async (req, res) => {
     console.log(user);
    const existingEmail = await User.findOne({ email: req.body.email});
     if (existingEmail) {
-         res.status(400);
+         res.status(400)/json({ message: "Email already exists" });
          throw new Error("Email already exists");
     }
     const existingPhone = await User.findOne({ phone: req.body.phone});
     if (existingPhone) {
-         res.status(400);
+         res.status(400).json({ message: "Phone already exists" });
          throw new Error("Phone already exists");
     }
 
@@ -119,8 +119,8 @@ const register = asyncHandler(async (req, res) => {
 
     res.status(200).json({ 
         message: "Register successfully",
-        data: {user,account},
-        accessToken: token
+        // data: {user,account},
+        // accessToken: token
      });
 
 });
@@ -130,14 +130,14 @@ const login = asyncHandler(async (req, res) => {
     console.log(username);
     const existingEmail = await Account.findOne({ username: username});
     if (!existingEmail) {
-         res.status(403);
+         res.status(403).json({ message: "Email not found" });
          throw new Error("Email not found");
     }
     console.log(existingEmail);
     const validPassword = await bcrypt.compare(password, existingEmail.password);
     console.log(validPassword)
     if (!validPassword) {
-         res.status(401);
+         res.status(401).json({ message: "Email or Password is incorrect" });
          throw new Error("Email or Password is incorrect");
     }
     const user = await User.findOne({ _id: existingEmail.userId});
