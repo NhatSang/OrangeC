@@ -10,7 +10,7 @@ const userRouter = require("./routers/userRouter");
 const accountRouter = require("./routers/accountRouter");
 const authRouter = require("./routers/authRouter");
 const error = require("./middlewares/responseMiddleware");
-const { default: connectDB } = require("./db/connectDB");
+const  connectDB  = require("./db/connectDB");
 const app = express();
 require("dotenv").config();
 app.use(cros());
