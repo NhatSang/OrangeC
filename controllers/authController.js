@@ -1,7 +1,6 @@
 const nodemailer = require("nodemailer");
 const asyncHandler = require("express-async-handler");
 require("dotenv").config();
-const Account = require("../models/Account");
 const bcrypt = require("bcrypt");
 
 
