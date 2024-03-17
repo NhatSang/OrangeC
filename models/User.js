@@ -7,6 +7,7 @@ const userSchma = new mongoose.Schema({
   dateOfBirth: { type: Date, required: true },
   image: { type: String, default: "" },
   gender: { type: String, enum: ["male", "female"] },
+  password: { type: String, required: true },
 });
 
 const User = mongoose.model("User", userSchma);

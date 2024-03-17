@@ -1,11 +1,10 @@
 const mongoose = require("mongoose");
 
 const messageSchema = new mongoose.Schema({
-    content: String,
-    // senderId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    // receiverId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    senderId: String,
-    receiverId: String,
+    content: {type:String,required:true},
+    senderId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    receiverId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    type: {type:String, enum:["text","image","video","file"]},
     createAt: { type: Date, default: Date.now },
   });
 
