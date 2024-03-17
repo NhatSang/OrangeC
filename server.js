@@ -1,6 +1,5 @@
 const { log } = require("console");
 const userRouter = require("./routers/userRouter");
-const accountRouter = require("./routers/accountRouter");
 const authRouter = require("./routers/authRouter");
 const error = require("./middlewares/responseMiddleware");
 const  connectDB  = require("./db/connectDB");
@@ -13,7 +12,6 @@ app.get("/", (req, res) => {
   res.send("SERVER IS RUNNING");
 });
 app.use("/api/v1", userRouter);
-app.use("/api/v1", accountRouter);
 app.use("/api/v1", authRouter);
 app.use(error);
 
