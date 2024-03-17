@@ -12,9 +12,25 @@ const getJwt = (email, userId) => {
     const token = jwt.sign(
         payload,
         process.env.SECRETKEY,
-        { expiresIn: "1h" }
+        { expiresIn: "7d" }
     );
     return token;
+};
+
+//refresh token
+const refreshToken = (req, res) => {
+    const refreshToken = req.body.refreshToken;
+    if (!refreshToken) {
+        return res.status(403).json("Access is forbidden - Missing refreshToken");
+    }
+    jwt.verify(refreshToken, process.env.SECRETKEY, (err, user) => {
+        if (err) {
+            return res.status(403).json("Access is forbidden - Invalid refreshToken");
+        }
+        console.log(user);
+        const accessToken = getJwt(user.email, user.userId);
+        return res.status(200).json({ accessToken });
+    });
 };
 
 //get all user
@@ -61,14 +77,12 @@ const register = asyncHandler(async (req, res) => {
 
 const login = asyncHandler(async (req, res) => {
     const {username, password} = req.body;
-    console.log(username);
     const existingEmail = await User.findOne({ email: username});
     if (!existingEmail) {
          res.status(403).json({ message: "Email not found" });
          throw new Error("Email not found");
     }
     const validPassword = await bcrypt.compare(password, existingEmail.password);
-    console.log(validPassword)
     if (!validPassword) {
          res.status(401).json({ message: "Email or Password is incorrect" });
          throw new Error("Email or Password is incorrect");
@@ -83,4 +97,4 @@ const login = asyncHandler(async (req, res) => {
      });
 });
 
-module.exports = { getAllUser, register,login }
+module.exports = { getAllUser, register,login,refreshToken }
