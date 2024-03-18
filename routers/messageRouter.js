@@ -2,5 +2,6 @@ const express = require('express')
 const Router = express.Router();
 const { getAllMessage } = require('../controllers/messageController');
 
-Router.get('/messages', getAllMessage);
+//get message theo conversationId 
+Router.get('/messages/:conversationId', getAllMessage);
 module.exports = Router;

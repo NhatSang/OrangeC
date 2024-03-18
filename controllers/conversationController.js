@@ -5,26 +5,28 @@ const Conversation = require("../models/Conversation");
 
 
 const getConversationByUserId = asyncHandler(async (req, res) => {
-    const { userId } = req.body;
-    
-    // Step 1: Tìm tất cả các cuộc trò chuyện mà người dùng tham gia và không phải là nhóm
-    const conversations = await Conversation.find({ members: userId, isGroup: false });
+  const { userId } = req.params;
+  console.log('userId', userId);
+  // Step 1: Tìm tất cả các cuộc trò chuyện mà người dùng tham gia và không phải là nhóm
+  const conversations = await Conversation.find({ members: userId, isGroup: false });
 
-    if (!conversations || conversations.length === 0) {
-        return res.status(404).json({ success: false, message: "No conversations found" });
-    }
-    // Step 2: Lặp qua danh sách các cuộc trò chuyện và lấy thông tin người nhận và tin nhắn cuối cùng của mỗi cuộc trò chuyện
-    const conversationsWithLastMessage = await Promise.all(conversations.map(async (conversation) => {
-        const lastMessage = await Message.findOne({ conversationId: conversation._id })
-                                            .sort({ createdAt: -1 })
-                                            .populate('receiverId')
-                                            .exec();
-        return {
-            conversation: conversation,
-            lastMessage: lastMessage
-        };
-    }));
-    return res.status(200).json({ success: true, data: conversationsWithLastMessage });
+  if (!conversations || conversations.length === 0) {
+    return res.status(404).json({ success: false, message: "No conversations found" });
+  }
+  // Step 2: Lặp qua danh sách các cuộc trò chuyện và lấy thông tin người nhận và tin nhắn cuối cùng của mỗi cuộc trò chuyện
+  const conversationsWithLastMessage = await Promise.all(conversations.map(async (conversation) => {
+    const lastMessage = await Message.findOne({ conversationId: conversation._id })
+      .sort({ createAt: -1 })
+      .populate('senderId')
+      .populate('receiverId')
+      .exec();
+    return {
+      conversation: conversation,
+      lastMessage: lastMessage
+    };
+  }));
+
+  return res.status(200).json({ success: true, data: conversationsWithLastMessage });
 });
 
 
@@ -57,6 +59,6 @@ const createConversation = asyncHandler(async (req, res) => {
 // });
 
 module.exports = {
-    createConversation,
-    getConversationByUserId,
+  createConversation,
+  getConversationByUserId,
 };
