@@ -1,6 +1,8 @@
 const { log } = require("console");
 const userRouter = require("./routers/userRouter");
 const authRouter = require("./routers/authRouter");
+const messageRouter = require("./routers/messageRouter");
+const conversationRouter = require("./routers/conversationRouter");
 const error = require("./middlewares/responseMiddleware");
 const  connectDB  = require("./db/connectDB");
 const {app,server} = require("./socket/socket")
@@ -13,6 +15,8 @@ app.get("/", (req, res) => {
 });
 app.use("/api/v1", userRouter);
 app.use("/api/v1", authRouter);
+app.use("/api/v1",messageRouter);
+app.use("/api/v1",conversationRouter);
 app.use(error);
 
 server.listen(PORT, () => {
