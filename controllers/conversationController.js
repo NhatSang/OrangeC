@@ -42,6 +42,14 @@ const createConversation = asyncHandler(async (req, res) => {
   const newConversation = new Conversation({
     members: [senderId, receiverId],
   });
+  // tao ra message dau tien
+  const message = new Message({
+    conversationId: newConversation._id,
+    senderId: senderId,
+    receiverId: receiverId,
+    contentMessage: "Hello",
+  });
+  await message.save();
   await newConversation.save();
   return res.status(200).json({ success: true, data: newConversation });
 });
