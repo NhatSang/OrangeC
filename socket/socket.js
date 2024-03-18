@@ -32,9 +32,18 @@ io.on("connection", (socket) => {
     );
 
     const message = new Message({
-      content: msg.message,
-      senderId: senderId,
+      conversationId: msg.conversationId,
+      senderId: msg.senderId,
       receiverId: msg.receiverId,
+      type: msg.type,
+      contentMessage: msg.contentMessage,
+      urlType: msg.urlType,
+      createAt: msg.createAt,
+      isDeleted: msg.isDeleted,
+      reaction: msg.reaction,
+      isSeen: msg.isSeen,
+      isReceive: msg.isReceive,
+      isSend: msg.isSend,
     });
     await message.save();
 
