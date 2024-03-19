@@ -4,6 +4,7 @@ const http = require("http");
 const express = require("express");
 const bodyParser = require("body-parser");
 const Message = require("../models/Message");
+const { createMessage } = require("../controllers/messageController");
 
 const app = express();
 app.use(cros());
@@ -31,21 +32,22 @@ io.on("connection", (socket) => {
       (key) => socketToUserIdMap[key] === msg.receiverId
     );
 
-    const message = new Message({
-      conversationId: msg.conversationId,
-      senderId: msg.senderId,
-      receiverId: msg.receiverId,
-      type: msg.type,
-      contentMessage: msg.contentMessage,
-      urlType: msg.urlType,
-      createAt: msg.createAt,
-      isDeleted: msg.isDeleted,
-      reaction: msg.reaction,
-      isSeen: msg.isSeen,
-      isReceive: msg.isReceive,
-      isSend: msg.isSend,
-    });
-    await message.save();
+    // const message = new Message({
+    //   conversationId: msg.conversationId,
+    //   senderId: msg.senderId,
+    //   receiverId: msg.receiverId,
+    //   type: msg.type,
+    //   contentMessage: msg.contentMessage,
+    //   urlType: msg.urlType,
+    //   createAt: msg.createAt,
+    //   isDeleted: msg.isDeleted,
+    //   reaction: msg.reaction,
+    //   isSeen: msg.isSeen,
+    //   isReceive: msg.isReceive,
+    //   isSend: msg.isSend,
+    // });
+    // await message.save();
+    createMessage(msg);
 
     if (receiverId) {
       io.to(receiverId).emit("chat message", {
