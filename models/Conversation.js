@@ -22,7 +22,13 @@ const conversationSchema = new mongoose.Schema({
     lastMessage: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Message"
-    }
+    },
+    messages: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Message"
+        }
+    ]
 });
 
 const Conversation = mongoose.model("Conversation", conversationSchema);

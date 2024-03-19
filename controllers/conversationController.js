@@ -8,7 +8,9 @@ const getConversationByUserId = asyncHandler(async (req, res) => {
   const { userId } = req.params;
   console.log('userId', userId);
   // Step 1: Tìm tất cả các cuộc trò chuyện mà người dùng tham gia và không phải là nhóm
-  const conversations = await Conversation.find({ members: userId, isGroup: false });
+  const conversations = await Conversation.find({ members: userId, isGroup: false })
+  .populate('messages')
+  .exec();
 
   if (!conversations || conversations.length === 0) {
     return res.status(404).json({ success: false, message: "No conversations found" });
@@ -25,7 +27,6 @@ const getConversationByUserId = asyncHandler(async (req, res) => {
       lastMessage: lastMessage
     };
   }));
-
   return res.status(200).json({ success: true, data: conversationsWithLastMessage });
 });
 
@@ -41,15 +42,9 @@ const createConversation = asyncHandler(async (req, res) => {
   }
   const newConversation = new Conversation({
     members: [senderId, receiverId],
+    messages: [],
   });
-  // tao ra message dau tien
-  const message = new Message({
-    conversationId: newConversation._id,
-    senderId: senderId,
-    receiverId: receiverId,
-    contentMessage: "Hello",
-  });
-  await message.save();
+  
   await newConversation.save();
   return res.status(200).json({ success: true, data: newConversation });
 });

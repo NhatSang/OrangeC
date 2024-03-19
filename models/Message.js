@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 
 const messageSchema = new mongoose.Schema({
-    conversationId: { type: mongoose.Schema.Types.ObjectId, ref: "Conversation" },
     senderId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     receiverId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     type: {type:String, enum:["text","image","video","file","sticker"], default:"text"},
