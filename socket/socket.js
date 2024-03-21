@@ -31,22 +31,6 @@ io.on("connection", (socket) => {
     const receiverId = Object.keys(socketToUserIdMap).find(
       (key) => socketToUserIdMap[key] === msg.receiverId
     );
-
-    // const message = new Message({
-    //   conversationId: msg.conversationId,
-    //   senderId: msg.senderId,
-    //   receiverId: msg.receiverId,
-    //   type: msg.type,
-    //   contentMessage: msg.contentMessage,
-    //   urlType: msg.urlType,
-    //   createAt: msg.createAt,
-    //   isDeleted: msg.isDeleted,
-    //   reaction: msg.reaction,
-    //   isSeen: msg.isSeen,
-    //   isReceive: msg.isReceive,
-    //   isSend: msg.isSend,
-    // });
-    // await message.save();
     createMessage(msg);
 
     if (receiverId) {
@@ -56,6 +40,7 @@ io.on("connection", (socket) => {
       });
     } else {
     }
+    socket.broadcast.emit('conversation updated');
   });
   socket.on("user login", (userId) => {
     socketToUserIdMap[socket.id] = userId;
