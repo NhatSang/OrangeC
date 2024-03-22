@@ -10,7 +10,6 @@ const getConversationByUserId = asyncHandler(async (req, res) => {
   try {
       // Step 1: Tìm tất cả các cuộc trò chuyện mà người dùng tham gia và không phải là nhóm
       const conversations = await Conversation.find({ members: userId, isGroup: false })
-      .populate('messages')
       .exec();
 
       if (!conversations || conversations.length === 0) {
