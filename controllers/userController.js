@@ -93,16 +93,19 @@ const login = asyncHandler(async (req, res) => {
 });
 // find user
 const findUsers = asyncHandler(async (req, res) => {
-  const { keyword } = req.body;
+  const { keyword, userId } = req.query;
   let result = null;
   if (/\d+/.test(keyword)) {
-    result = await User.find({ phone: keyword });
+    result = await User.find({ phone: keyword, _id: { $ne: userId } });
     if (!result) {
       res.status(403).json({ success: false, message: "Not found" });
       throw new Error("Not found");
     }
   } else {
-    result = await User.find({ name: { $regex: keyword, $options: "i" } });
+    result = await User.find({
+      name: { $regex: keyword, $options: "i" },
+      _id: { $ne: userId },
+    });
     if (!result) {
       res.status(403).json({ success: false, message: "Not found" });
       throw new Error("Not found");
@@ -111,4 +114,4 @@ const findUsers = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: result });
 });
 
-module.exports = { getAllUser, register, login, refreshToken, findUsers};
+module.exports = { getAllUser, register, login, refreshToken, findUsers };
