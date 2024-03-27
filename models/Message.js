@@ -7,7 +7,7 @@ const messageSchema = new mongoose.Schema({
     type: {type:String, enum:["text","image","video","file","sticker"], default:"text"},
     contentMessage: { type: String, default: "" },
     //4 url type: image, video, file
-    urlType: { type: String, default: "" },
+    urlType: { type: Array, default: [] },
     createAt: { type: Date, default: Date.now },
     isDeleted: { type: Boolean, default: false },
     reaction: { type: String, default: "" },
