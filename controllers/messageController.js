@@ -1,7 +1,8 @@
 const asyncHandler = require("express-async-handler");
 const Message = require("../models/Message");
-const User = require("../models/User");
 const Conversation = require("../models/Conversation");
+const { uploadFile } = require("../service/file.service");
+
 
 //get all message by id conversation
 const getAllMessage = asyncHandler(async (req, res) => {
@@ -37,7 +38,21 @@ const createMessage = asyncHandler(async (msg) => {
   );
 });
 
+const uploadFiles = asyncHandler(async (req, res) => {
+  console.log(req.file);
+  try {
+    const file = req.file;
+    console.log(file);
+    const url = await uploadFile(file);
+    return res.status(200).json({ success: true, data: url });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 module.exports = {
   getAllMessage,
   createMessage,
+  uploadFiles,
 };
