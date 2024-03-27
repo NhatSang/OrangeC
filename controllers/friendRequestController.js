@@ -5,6 +5,7 @@ const User = require("../models/User");
 // send friend request
 const sendFriendRequest = asyncHandler(async (req, res) => {
   const { senderId, receiverId } = req.body;
+  console.log(receiverId);
   const friendRequest = new FriendRequest({
     senderId,
     receiverId,
@@ -31,17 +32,13 @@ const acceptFriendRequest = asyncHandler(async (req, res) => {
 });
 // reject
 const rejectFriendRequest = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+  const { id } = req.params;
 
-    const deleteResult = await FriendRequest.deleteOne({_id:id});
-    if(deleteResult.deletedCount === 0){
-        return res
-          .status(404)
-          .json({ success: false, message: "Id not found" });
-    }
-    res
-      .status(200)
-      .json({ success: true, message: "Deleted successfully" });
+  const deleteResult = await FriendRequest.deleteOne({ _id: id });
+  if (deleteResult.deletedCount === 0) {
+    return res.status(404).json({ success: false, message: "Id not found" });
+  }
+  res.status(200).json({ success: true, message: "Deleted successfully" });
 });
 // get all friends of user
 const getFriends = asyncHandler(async (req, res) => {
@@ -77,7 +74,9 @@ const getFriendRequests = asyncHandler(async (req, res) => {
   const listFriendRequests = await FriendRequest.find({
     state: "pending",
     receiverId: userId,
-  });
+  })
+    .populate("senderId")
+    .exec();
   if (!listFriendRequests) {
     return res.status(404).json({
       sucess: false,
@@ -87,10 +86,22 @@ const getFriendRequests = asyncHandler(async (req, res) => {
   res.status(200).json({ sucess: true, data: listFriendRequests });
 });
 
+const deleteFriend = asyncHandler(async (req, res) => {
+  const { userId, receiverId } = req.body;
+
+  const deleteResult = await FriendRequest.deleteOne({
+    senderId: userId,
+    receiverId: receiverId,
+  });
+  if (deleteResult.deletedCount === 0) {
+    return res.status(404).json({ success: false, message: "Id not found" });
+  }
+  res.status(200).json({ success: true, message: "Deleted successfully" });
+});
 module.exports = {
   sendFriendRequest,
   getFriends,
   getFriendRequests,
   acceptFriendRequest,
-  rejectFriendRequest
+  rejectFriendRequest,
 };
