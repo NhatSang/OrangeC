@@ -1,11 +1,12 @@
 const asyncHandler = require("express-async-handler");
 const FriendRequest = require("../models/FriendRequest");
 const User = require("../models/User");
+const mongoose = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
 
 // send friend request
 const sendFriendRequest = asyncHandler(async (req, res) => {
   const { senderId, receiverId } = req.body;
-  console.log(receiverId);
   const friendRequest = new FriendRequest({
     senderId,
     receiverId,
@@ -65,7 +66,20 @@ const getFriends = asyncHandler(async (req, res) => {
       }
     })
   );
+  listFriends.sort((a, b) => a.name.localeCompare(b.name));
   res.status(200).json({ sucess: true, data: listFriends });
+});
+const getAllFriendRequests = asyncHandler(async (req, res) => {
+  const listFriendRequests = await FriendRequest.find({
+    state: "pending",
+  });
+  if (!listFriendRequests) {
+    return res.status(404).json({
+      sucess: false,
+      message: "Not found",
+    });
+  }
+  res.status(200).json({ sucess: true, data: listFriendRequests });
 });
 // get all friend requests of user
 const getFriendRequests = asyncHandler(async (req, res) => {
@@ -87,11 +101,14 @@ const getFriendRequests = asyncHandler(async (req, res) => {
 });
 
 const deleteFriend = asyncHandler(async (req, res) => {
-  const { userId, receiverId } = req.body;
+  const senderId = req.body.senderId;
+  const receiverId = req.body.receiverId;
 
-  const deleteResult = await FriendRequest.deleteOne({
-    senderId: userId,
-    receiverId: receiverId,
+  const deleteResult = await FriendRequest.findOneAndDelete({
+    $or: [
+      { senderId: senderId, receiverId: receiverId },
+      { senderId: receiverId, receiverId: senderId },
+    ],
   });
   if (deleteResult.deletedCount === 0) {
     return res.status(404).json({ success: false, message: "Id not found" });
@@ -104,4 +121,6 @@ module.exports = {
   getFriendRequests,
   acceptFriendRequest,
   rejectFriendRequest,
+  deleteFriend,
+  getAllFriendRequests
 };

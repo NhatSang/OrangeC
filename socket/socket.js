@@ -5,6 +5,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const Message = require("../models/Message");
 const { createMessage } = require("../controllers/messageController");
+const FriendRequest = require("../models/FriendRequest");
 
 const app = express();
 app.use(cros());
@@ -40,7 +41,16 @@ io.on("connection", (socket) => {
       });
     } else {
     }
-    socket.broadcast.emit('conversation updated');
+    socket.broadcast.emit("conversation updated");
+  });
+  socket.on("send friend request", async (fq) => {
+    console.log('aa');
+    const friendRequest = new FriendRequest({
+      senderId: fq.senderId,
+      receiverId: fq.receiverId,
+    });
+    await friendRequest.save();
+    io.emit("newFriendRequest", friendRequest);
   });
   socket.on("user login", (userId) => {
     socketToUserIdMap[socket.id] = userId;
@@ -51,4 +61,4 @@ io.on("connection", (socket) => {
   });
 });
 
-module.exports = {app,server,io}
+module.exports = { app, server, io };
