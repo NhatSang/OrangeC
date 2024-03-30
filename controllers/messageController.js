@@ -51,8 +51,26 @@ const uploadFiles = asyncHandler(async (req, res) => {
   }
 });
 
+// create reaction message
+const createReaction = asyncHandler(async (req,res) =>{
+  const {messageId,userId,reactType} = req.body;
+  const message = await Message.findById(messageId);
+  if(!message) {
+    throw new Error("Khong tim thay msg!")
+  }
+  const existingReaction = message.reaction.find(reaction => reaction.userId.toString() === userId.toString());
+  if(existingReaction){
+    existingReaction.type = reactType;
+  }else {
+    message.reaction.push({userId,type:reactType});
+  }
+  await message.save();
+  return res.status(200).json({success:true});
+})
+
 module.exports = {
   getAllMessage,
   createMessage,
   uploadFiles,
+  createReaction
 };
