@@ -26,7 +26,7 @@ app.use(bodyParser.json());
 let socketToUserIdMap = {};
 
 io.on("connection", (socket) => {
-  console.log("new user connection" + socket.id);
+  console.log("new user connection " + socket.id);
   socket.on("chat message", async (msg) => {
     const senderId = socketToUserIdMap[socket.id];
     const receiverId = Object.keys(socketToUserIdMap).find(
@@ -44,18 +44,29 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("conversation updated");
   });
   socket.on("send friend request", async (fq) => {
-    console.log('aa');
+    const senderId = socketToUserIdMap[socket.id];
+    const receiverId = Object.keys(socketToUserIdMap).find(
+      (key) => socketToUserIdMap[key] === fq.receiverId
+    );
+    console.log(receiverId);
     const friendRequest = new FriendRequest({
       senderId: fq.senderId,
       receiverId: fq.receiverId,
     });
-    await friendRequest.save();
-    io.emit("newFriendRequest", friendRequest);
+    if (receiverId) {
+      await friendRequest.save();
+      await friendRequest.populate("senderId");
+      io.to(receiverId).emit("newFriendRequest", friendRequest);
+    } else {
+      await friendRequest.save();
+    }
   });
   socket.on("reaction", async () => {
     socket.broadcast.emit("conversation updated");
   });
+
   socket.on("user login", (userId) => {
+    console.log("hello " + userId);
     socketToUserIdMap[socket.id] = userId;
   });
 
