@@ -37,6 +37,20 @@ const getAllUser = asyncHandler(async (req, res) => {
     res.json({ message: error });
   }
 });
+
+//up avatar
+const uploadAvatar = asyncHandler(async (req, res) => {
+  const { userId,image } = req.body;
+  const user = await User.findById(userId);
+  if (!user) {
+    res.status(404).json({ message: "User not found" });
+    throw new Error("User not found");
+  }
+  user.image = image;
+  await user.save();
+  res.status(200).json({ message: "Upload successfully" });
+});
+
 //register user
 const register = asyncHandler(async (req, res) => {
   const user = new User({
@@ -114,4 +128,4 @@ const findUsers = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: result });
 });
 
-module.exports = { getAllUser, register, login, refreshToken, findUsers };
+module.exports = { getAllUser, register, login, refreshToken, findUsers, uploadAvatar};
