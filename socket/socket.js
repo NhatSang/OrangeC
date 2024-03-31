@@ -52,6 +52,9 @@ io.on("connection", (socket) => {
     await friendRequest.save();
     io.emit("newFriendRequest", friendRequest);
   });
+  socket.on("reaction", async () => {
+    socket.broadcast.emit("conversation updated");
+  });
   socket.on("user login", (userId) => {
     socketToUserIdMap[socket.id] = userId;
   });
