@@ -12,9 +12,9 @@ const getConversationByUserId = asyncHandler(async (req, res) => {
       const conversations = await Conversation.find({ members: userId, isGroup: false })
       .exec();
 
-      if (!conversations || conversations.length === 0) {
-          return res.status(404).json({ success: false, message: "No conversations found" });
-      }
+    //   if (!conversations || conversations.length === 0) {
+    //       return res.status(200).json({ success: false, data: [] });
+    //   }
 
       // Step 2: Lặp qua danh sách các cuộc trò chuyện và lấy thông tin người nhận và tin nhắn cuối cùng của mỗi cuộc trò chuyện
       const conversationsWithLastMessage = [];
@@ -35,7 +35,7 @@ const getConversationByUserId = asyncHandler(async (req, res) => {
       return res.status(200).json({ success: true, data: conversationsWithLastMessage });
   } catch (error) {
       console.error("Error:", error);
-      return res.status(500).json({ success: false, message: "Internal Server Error" });
+      return res.status(500).json({ success: false, data:[]});
   }
 });
 
