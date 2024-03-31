@@ -38,6 +38,30 @@ const createMessage = asyncHandler(async (msg) => {
   );
 });
 
+//lấy 20 tin nhắn gần nhất
+const getLastMessage = asyncHandler(async (req, res) => {
+  const { conversationId } = req.params;
+  const conversation = await Conversation.findById(conversationId);
+  if (!conversation) {
+    return res.status(404).json({ success: false, message: "Conversation not found" });
+  }
+  const messages = await Message.find({ conversationId }).sort({ createAt: -1 }).limit(20);
+  messages.reverse();
+  return res.status(200).json({ success: true, data: messages });
+});
+
+//lấy tất cả tin nhắn trừ 20 tin nhắn gần nhất
+const getMoreMessage = asyncHandler(async (req, res) => {
+  const { conversationId } = req.params;
+  const conversation = await Conversation.findById(conversationId);
+  if (!conversation) {
+    return res.status(404).json({ success: false, message: "Conversation not found" });
+  }
+  const messages = await Message.find({ conversationId }).sort({ createAt: -1 }).skip(20);
+  messages.reverse();
+  return res.status(200).json({ success: true, data: messages });
+});
+
 const uploadFiles = asyncHandler(async (req, res) => {
   console.log(req.file);
   try {
@@ -72,5 +96,7 @@ module.exports = {
   getAllMessage,
   createMessage,
   uploadFiles,
-  createReaction
+  createReaction,
+  getLastMessage,
+  getMoreMessage,
 };
