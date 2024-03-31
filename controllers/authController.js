@@ -2,6 +2,7 @@ const nodemailer = require("nodemailer");
 const asyncHandler = require("express-async-handler");
 require("dotenv").config();
 const bcrypt = require("bcrypt");
+const User = require("../models/User");
 
 
 const transporter = nodemailer.createTransport({
@@ -49,14 +50,13 @@ const forgotPassword = asyncHandler(async (req, res) => {
     const { username } = req.body;
     const newPassword = Math.random().toString(36).slice(-8);
     try {
-        const account = await Account.findOne({ username: username });
-        console.log(account);
-        if (account) {
+        const user = await User.findOne({ email: username });
+
+        if (user) {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(newPassword, salt);
-            await Account.findByIdAndUpdate(account._id, {
-                password: hashedPassword,
-            });
+            user.password = hashedPassword;
+            await user.save();
             await transporter.sendMail({
                 from: `"OrangeChat" <${process.env.EMAIL}>`,
                 to: username,
