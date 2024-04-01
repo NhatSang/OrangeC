@@ -66,12 +66,12 @@ const forgotPassword = asyncHandler(async (req, res) => {
             });
 
         } else {
-            res.status(401).json({
-                message: "Email not found",
+            res.status(200).json({
+                message: "Email chưa được đăng ký",
             });
         }
         res.status(200).json({
-            message: "Send new password to email success",
+            message: "ok",
         });
     } catch (error) {
         res.json({ message: error });
