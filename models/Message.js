@@ -19,6 +19,8 @@ const messageSchema = new mongoose.Schema({
     isSeen: { type: Boolean, default: false },
     isReceive: { type: Boolean, default: false },
     isSend: { type: Boolean, default: false },
+    typeFile: { type: String, default: "" },
+    fileName: { type: String, default: "" },
     
   });
 

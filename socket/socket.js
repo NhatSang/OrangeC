@@ -62,7 +62,7 @@ io.on("connection", (socket) => {
     }
   });
   socket.on("reaction", async () => {
-    socket.broadcast.emit("conversation updated");
+    socket.broadcast.emit("reaction updated");
   });
 
   socket.on("user login", (userId) => {
