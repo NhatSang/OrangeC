@@ -12,6 +12,7 @@ const FILE_TYPE_MATCH = [
     "image/jpeg",
     "image/jpg",
     "image/gif",
+    "application/pdf",
 ];
 
 const uploadFile = async file => {
