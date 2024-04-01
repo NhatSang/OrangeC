@@ -4,7 +4,7 @@ const http = require("http");
 const express = require("express");
 const bodyParser = require("body-parser");
 const Message = require("../models/Message");
-const { createMessage } = require("../controllers/messageController");
+const { createMessage,createReaction } = require("../controllers/messageController");
 const FriendRequest = require("../models/FriendRequest");
 
 const app = express();
@@ -27,6 +27,7 @@ let socketToUserIdMap = {};
 
 io.on("connection", (socket) => {
   console.log("new user connection " + socket.id);
+
   socket.on("chat message", async (msg) => {
     const senderId = socketToUserIdMap[socket.id];
     const receiverId = Object.keys(socketToUserIdMap).find(
@@ -36,13 +37,28 @@ io.on("connection", (socket) => {
 
     if (receiverId) {
       io.to(receiverId).emit("chat message", {
-        message: msg.message,
-        sender: senderId,
+        msg
       });
-    } else {
     }
-    socket.broadcast.emit("conversation updated");
   });
+
+  socket.on("reaction message", async (
+    messageId,userId,reactType,receiverIdRA
+  ) => {
+    const senderId = socketToUserIdMap[socket.id];
+    const receiverId = Object.keys(socketToUserIdMap).find(
+      (key) => socketToUserIdMap[key] === receiverIdRA
+    );
+    createReaction(messageId,userId,reactType);
+
+    if (receiverId) {
+      io.to(receiverId).emit("reaction message", {
+        messageId,reactType
+      });
+    }
+  
+  });
+
   socket.on("send friend request", async (fq) => {
     const senderId = socketToUserIdMap[socket.id];
     const receiverId = Object.keys(socketToUserIdMap).find(
@@ -61,9 +77,7 @@ io.on("connection", (socket) => {
       await friendRequest.save();
     }
   });
-  socket.on("reaction", async () => {
-    socket.broadcast.emit("reaction updated");
-  });
+
 
   socket.on("user login", (userId) => {
     console.log("hello " + userId);
