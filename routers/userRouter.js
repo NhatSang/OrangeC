@@ -1,6 +1,6 @@
 const express = require('express')
 const Router = express.Router();
-const { getAllUser,register,login,refreshToken,findUsers,uploadAvatar } = require('../controllers/userController');
+const { getAllUser,register,login,refreshToken,findUsers,uploadAvatar,checkInfo } = require('../controllers/userController');
 const verifyToken = require('../middlewares/verifyMiddleware');
 
 Router.get('/allusers', getAllUser);
@@ -9,5 +9,6 @@ Router.post('/auth/register', register);
 Router.post('/auth/login', login);
 Router.get("/users",findUsers);
 Router.post('/uploadAvatar',uploadAvatar);
+Router.post('/checkInfo',checkInfo);
 
 module.exports = Router;

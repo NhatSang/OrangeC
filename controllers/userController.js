@@ -128,4 +128,24 @@ const findUsers = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: result });
 });
 
-module.exports = { getAllUser, register, login, refreshToken, findUsers, uploadAvatar};
+//ham check sdt va email da ton tai chua
+const checkInfo = asyncHandler(async (req, res) => {
+  const { email, phone } = req.body;
+  const existingEmail = await User.findOne({ email: email });
+  const existingPhone = await User.findOne({ phone: phone });
+  if (existingEmail) {
+    res.status(200).json({ message: "email" });
+  }
+  
+  else if (existingPhone) {
+    res.status(200).json({ message: "phone" });
+  }
+
+  else {
+    res.status(200).json({ message: "ok" });
+  }
+  
+});
+
+
+module.exports = { getAllUser, register, login, refreshToken, findUsers, uploadAvatar,checkInfo};
