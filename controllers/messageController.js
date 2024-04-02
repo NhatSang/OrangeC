@@ -86,18 +86,18 @@ const uploadFiles = asyncHandler(async (req, res) => {
 });
 
 // create reaction message
-const createReaction = asyncHandler(async (messageId,userId,reactType) =>{
+const createReaction = asyncHandler(async (r) =>{
   // const {messageId,userId,reactType} = req.body;
-  const message = await Message.findById(messageId);
+  const message = await Message.findById(r.messageId);
   console.log(message);
   if(!message) {
     throw new Error("Khong tim thay msg!")
   }
   const existingReaction = message.reaction.find(reaction => reaction.userId.toString() === userId.toString());
   if(existingReaction){
-    existingReaction.type = reactType;
+    existingReaction.type = r.reactType;
   }else {
-    message.reaction.push({userId,type:reactType});
+    message.reaction.push({userId,type:r.reactType});
   }
   await message.save();
 })
