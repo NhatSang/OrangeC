@@ -34,9 +34,8 @@ io.on("connection", (socket) => {
       (key) => socketToUserIdMap[key] === msg.receiverId
     );
     console.log("receiverId", receiverId);
-    const message = createMessage(msg);
-
-
+    const message = await createMessage(msg);
+    consolog.log("message", message);
     if (receiverId) {
       io.to(receiverId).emit("chat message",
       message
