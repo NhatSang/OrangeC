@@ -13,7 +13,7 @@ const messageSchema = new mongoose.Schema({
     reaction: [
       {
         userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-        type: { type: String, enum: ["like", "love", "haha", "wow", "sad", "angry"]},
+        type: { type: String, enum: ["like", "love", "haha", "wow", "sad", "angry","delete"]},
       },
     ],
     isSeen: { type: Boolean, default: false },
