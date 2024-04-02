@@ -36,6 +36,7 @@ io.on("connection", (socket) => {
     createMessage(msg);
 
     if (receiverId) {
+      console.log("receiverId", receiverId);
       io.to(receiverId).emit("chat message", {
         msg
       });
