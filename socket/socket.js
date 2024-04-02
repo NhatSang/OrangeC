@@ -4,7 +4,7 @@ const http = require("http");
 const express = require("express");
 const bodyParser = require("body-parser");
 const Message = require("../models/Message");
-const { createMessage,createReaction } = require("../controllers/messageController");
+const { createMessage, createReaction } = require("../controllers/messageController");
 const FriendRequest = require("../models/FriendRequest");
 
 const app = express();
@@ -39,27 +39,28 @@ io.on("connection", (socket) => {
     if (receiverId) {
       console.log("receiverId", receiverId);
       console.log("msg", msg);
-      io.to(receiverId).emit("chat message", {
+      io.to(receiverId).emit("chat message",
         msg
-      });
+      );
     }
   });
 
   socket.on("reaction message", async (
-    messageId,userId,reactType,receiverIdRA
+    messageId, userId, reactType, receiverIdRA
   ) => {
     const senderId = socketToUserIdMap[socket.id];
     const receiverId = Object.keys(socketToUserIdMap).find(
       (key) => socketToUserIdMap[key] === receiverIdRA
     );
-    createReaction(messageId,userId,reactType);
+    createReaction(messageId, userId, reactType);
 
     if (receiverId) {
       io.to(receiverId).emit("reaction message", {
-        messageId,reactType
+        messageId: messageId,
+        reactType: reactType
       });
     }
-  
+
   });
 
   socket.on("send friend request", async (fq) => {
