@@ -97,7 +97,7 @@ const createReaction = asyncHandler(async (r) =>{
   if(existingReaction){
     existingReaction.type = r.reactType;
   }else {
-    message.reaction.push({userId,type:r.reactType});
+    message.reaction.push({userId:r.userId,type:r.reactType});
   }
   await message.save();
 })
