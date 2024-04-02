@@ -36,6 +36,7 @@ const createMessage = asyncHandler(async (msg) => {
     { _id: msg.conversationId },
     { $push: { messages: message._id } }
   );
+  return message;
 });
 
 //lấy 20 tin nhắn gần nhất
