@@ -89,7 +89,7 @@ const uploadFiles = asyncHandler(async (req, res) => {
 const createReaction = asyncHandler(async ({messageId,userId,reactType}) =>{
   // const {messageId,userId,reactType} = req.body;
   const message = await Message.findById(messageId);
-  consolo.log(message);
+  console.log(message);
   // if(!message) {
   //   throw new Error("Khong tim thay msg!")
   // }
