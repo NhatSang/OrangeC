@@ -93,7 +93,7 @@ const createReaction = asyncHandler(async (r) =>{
   if(!message) {
     throw new Error("Khong tim thay msg!")
   }
-  const existingReaction = message.reaction.find(reaction => reaction.userId.toString() === userId.toString());
+  const existingReaction = message.reaction.find(reaction => reaction.userId.toString() === r.userId.toString());
   if(existingReaction){
     existingReaction.type = r.reactType;
   }else {
