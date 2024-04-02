@@ -51,7 +51,7 @@ io.on("connection", (socket) => {
     );
     createReaction(reaction.messageId, reaction.userId, reaction.reactType);
 
-    console.log("receiverId", reaction);
+    console.log("receiverIdok", reaction);
     if (receiverId) {
       io.to(receiverId).emit("reaction message", {
         messageId: reaction.messageId,
