@@ -49,7 +49,7 @@ io.on("connection", (socket) => {
     const receiverId = Object.keys(socketToUserIdMap).find(
       (key) => socketToUserIdMap[key] === reaction.receiverId
     );
-    createReaction(reaction.messageId, reaction.userId, reaction.reactType);
+    createReaction(reaction);
 
     console.log("receiverIdok", reaction);
     if (receiverId) {
