@@ -33,6 +33,7 @@ io.on("connection", (socket) => {
     const receiverId = Object.keys(socketToUserIdMap).find(
       (key) => socketToUserIdMap[key] === msg.receiverId
     );
+    console.log("receiverId", receiverId);
     createMessage(msg);
 
     if (receiverId) {
