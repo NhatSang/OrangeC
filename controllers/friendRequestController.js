@@ -100,6 +100,7 @@ const getFriendRequests = asyncHandler(async (req, res) => {
   res.status(200).json({ sucess: true, data: listFriendRequests });
 });
 
+//delete friend by senderId and receciverId
 const deleteFriend = asyncHandler(async (req, res) => {
   const senderId = req.body.senderId;
   const receiverId = req.body.receiverId;
