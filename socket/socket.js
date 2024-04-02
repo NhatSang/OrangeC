@@ -53,10 +53,9 @@ io.on("connection", (socket) => {
 
     console.log("receiverIdok", reaction);
     if (receiverId) {
-      io.to(receiverId).emit("reaction message", {
-        messageId: reaction.messageId,
-        reactType: reaction.reactType
-      });
+      io.to(receiverId).emit("reaction message", 
+      reaction
+      );
     }
 
   });
