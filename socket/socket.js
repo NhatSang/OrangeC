@@ -43,18 +43,19 @@ io.on("connection", (socket) => {
   });
 
   socket.on("reaction message", async (
-    messageId, userId, reactType, receiverIdRA
+    reaction
   ) => {
     const senderId = socketToUserIdMap[socket.id];
     const receiverId = Object.keys(socketToUserIdMap).find(
-      (key) => socketToUserIdMap[key] === receiverIdRA
+      (key) => socketToUserIdMap[key] === reaction.receiverId
     );
-    createReaction(messageId, userId, reactType);
+    createReaction(reaction.messageId, reaction.userId, reaction.reactType);
 
+    console.log("receiverId", reaction);
     if (receiverId) {
       io.to(receiverId).emit("reaction message", {
-        messageId: messageId,
-        reactType: reactType
+        messageId: reaction.messageId,
+        reactType: reaction.reactType
       });
     }
 
