@@ -40,7 +40,7 @@ io.on("connection", (socket) => {
     // );
     // console.log("receiverId", receiverId);
     const message = await createMessage(msg);
-    const conversation = await Conversation.find({ _id: msg.conversationId });
+    const conversation = await Conversation.findOne({ _id: msg.conversationId });
     conversation.members.forEach((member) => {
       console.log(member);
       io.to(member).emit("chat message", message);
@@ -115,7 +115,7 @@ io.on("connection", (socket) => {
       io.to(receiverId).emit("rejectFriendRequest", fq);
     }
   });
-
+// huy ket ban
   socket.on("delete friend", async (data) => {
     const deleteResult = await FriendRequest.findOneAndDelete({
       $or: [
