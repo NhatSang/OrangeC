@@ -146,6 +146,43 @@ const checkInfo = asyncHandler(async (req, res) => {
   }
   
 });
+// ham chinh sua thong tin ca nhan
+const editProfile = asyncHandler(async (req, res) => {
+  const {userId,name,dateOfBirth,gender} = req.body;
+  console.log('req.body',req.body);
+  const user = await User.findById(userId);
+  if (!user) {
+    res.status(404).json({ message: "User not found" });
+    throw new Error("User not found");
+  }
+  user.name = name;
+  user.dateOfBirth = dateOfBirth;
+  user.gender = gender;
+  await user.save();
+  res.status(200).json({ message: "ok",user });
+});
+
+//ham change password CO KIEM TRA PASSWORD CU
+const changePassword = asyncHandler(async (req, res) => {
+  const { userId, oldpassword,password } = req.body;
+  console.log('req.body',req.body);
+  const user = await User.findById(userId);
+  if (!user) {
+    res.status(404).json({ message: "User not found" });
+    throw new Error("User not found");
+  }
+  const validPassword = await bcrypt.compare(oldpassword, user.password);
+  if (!validPassword) {
+    res.status(200).json({ message: "sai" });
+    throw new Error("Old password is incorrect");
+  }
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+  user.password = hashedPassword;
+  await user.save();
+  res.status(200).json({ message: "ok" });
+});
 
 
-module.exports = { getAllUser, register, login, refreshToken, findUsers, uploadAvatar,checkInfo};
+
+module.exports = { getAllUser, register, login, refreshToken, findUsers, uploadAvatar,checkInfo,editProfile,changePassword};
