@@ -10,6 +10,7 @@ const {
 } = require("../controllers/messageController");
 const FriendRequest = require("../models/FriendRequest");
 const User = require("../models/User");
+const Conversation = require("../models/Conversation");
 
 const app = express();
 app.use(cros());
@@ -33,15 +34,17 @@ io.on("connection", (socket) => {
   console.log("new user connection " + socket.id);
 
   socket.on("chat message", async (msg) => {
-    const senderId = socketToUserIdMap[socket.id];
-    const receiverId = Object.keys(socketToUserIdMap).find(
-      (key) => socketToUserIdMap[key] === msg.receiverId
-    );
-    console.log("receiverId", receiverId);
+    // const senderId = socketToUserIdMap[socket.id];
+    // const receiverId = Object.keys(socketToUserIdMap).find(
+    //   (key) => socketToUserIdMap[key] === msg.receiverId
+    // );
+    // console.log("receiverId", receiverId);
     const message = await createMessage(msg);
-    if (receiverId) {
-      io.to(receiverId).emit("chat message", message);
-    }
+    const conversation = await Conversation.find({ _id: msg.conversationId });
+    conversation.members.forEach((member) => {
+      console.log(member);
+      io.to(member).emit("chat message", message);
+    });
   });
 
   socket.on("reaction message", async (reaction) => {
@@ -63,7 +66,7 @@ io.on("connection", (socket) => {
     const receiverId = Object.keys(socketToUserIdMap).find(
       (key) => socketToUserIdMap[key] === fq.receiverId
     );
-    console.log(receiverId);
+    console.log('send to: '+receiverId);
     const friendRequest = new FriendRequest({
       senderId: fq.senderId,
       receiverId: fq.receiverId,
@@ -71,7 +74,7 @@ io.on("connection", (socket) => {
     if (receiverId) {
       await friendRequest.save();
       await friendRequest.populate("senderId");
-      io.to(receiverId).emit("new friend request", friendRequest);
+      io.to(receiverId).emit("newFriendRequest", friendRequest);
     } else {
       await friendRequest.save();
     }
@@ -85,17 +88,20 @@ io.on("connection", (socket) => {
 
   //accept friend request
   socket.on("accept friend request", async (fq) => {
+    try{
     const receiverId = Object.keys(socketToUserIdMap).find(
-      (key) => socketToUserIdMap[key] === fq.receiverId
+      (key) => socketToUserIdMap[key] === fq.senderId
     );
     const updateResult = await FriendRequest.updateOne(
       { _id: fq._id },
       { $set: { state: "accepted" } }
     );
     if (receiverId) {
-      const user = await User.find({ _id: receiverId });
+      const user = await User.findOne({ _id: fq.senderIdId });
       console.log(user);
-      if (user) io.to(receiverId).emit("accept friend request", user);
+      if (user) io.to(receiverId).emit("acceptFriendRequest", user);
+    }}catch(err){
+      console.log(err);
     }
   });
 
@@ -104,15 +110,21 @@ io.on("connection", (socket) => {
     const receiverId = Object.keys(socketToUserIdMap).find(
       (key) => socketToUserIdMap[key] === fq.receiverId
     );
+    const deleteResult = await FriendRequest.deleteOne({ _id: fq._id });
+    if (receiverId) {
+      io.to(receiverId).emit("rejectFriendRequest", fq);
+    }
+  });
+
+  socket.on("delete friend", async (data) => {
     const deleteResult = await FriendRequest.findOneAndDelete({
       $or: [
-        { senderId: fq.senderId, receiverId: fq.receiverId },
-        { senderId: fq.receiverId, receiverId: fq.senderId },
+        { senderId: data.senderId, receiverId: data.receiverId },
+        { senderId: data.receiverId, receiverId: data.senderId },
       ],
     });
-    if (receiverId) {
-      io.to(receiverId).emit("reject friend request", fq);
-    }
+
+    socket.to(data.receiverId).emit("deleteFriend", data);
   });
 
   socket.on("disconnect", () => {
