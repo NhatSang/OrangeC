@@ -11,7 +11,9 @@ const getConversationByUserId = asyncHandler(async (req, res) => {
     const conversations = await Conversation.find({
       members: userId,
       isGroup: false,
-    }).exec();
+    })
+    .populate("members")
+    .exec();
 
     //   if (!conversations || conversations.length === 0) {
     //       return res.status(200).json({ success: false, data: [] });
@@ -25,8 +27,6 @@ const getConversationByUserId = asyncHandler(async (req, res) => {
           conversationId: conversation._id,
         })
           .sort({ createAt: -1 })
-          .populate("senderId")
-          .populate("receiverId")
           .exec();
       }
       conversationsWithLastMessage.push({
@@ -68,6 +68,7 @@ const createConversation = asyncHandler(async (req, res) => {
       conversationId: newConversation._id,
       senderId,
       receiverId,
+      type: "first",
     });
     // Lưu tin nhắn mới vào cơ sở dữ liệu
     await message.save();
