@@ -13,7 +13,7 @@ const messageSchema = new mongoose.Schema({
     reaction: [
       {
         userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-        type: { type: String, enum: ["like", "love", "haha", "wow", "sad", "angry"]},
+        type: { type: String, enum: ["like", "love", "haha", "wow", "sad", "angry","delete"]},
       },
     ],
     isSeen: { type: Boolean, default: false },
@@ -21,6 +21,13 @@ const messageSchema = new mongoose.Schema({
     isSend: { type: Boolean, default: false },
     typeFile: { type: String, default: "" },
     fileName: { type: String, default: "" },
+    isReCall: { type: Boolean, default: false },
+    reply:[
+      {
+        messageId: { type: mongoose.Schema.Types.ObjectId, ref: "Message" },
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      }
+    ]
     
   });
 
