@@ -96,6 +96,15 @@ const addConversation = async (c) => {
       messages: [],
     });
     await conversation.save();
+    const message = new Message({
+      conversationId: conversation._id,
+      senderId: conversation.members[0],
+      receiverId: conversation.members[1],
+      type: "first",
+    });
+    await message.save();
+    conversation.messages.push(message);
+    await conversation.save();
     return conversation;
   } catch (error) {
     console.log("error create conversation: ", error);
