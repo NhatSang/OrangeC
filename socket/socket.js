@@ -47,7 +47,10 @@ io.on("connection", (socket) => {
       _id: msg.conversationId,
     });
     conversation.members.forEach((member) => {
-      io.to(member).emit("chat message", message);
+      const receiverId = Object.keys(socketToUserIdMap).find(
+        (key) => socketToUserIdMap[key] === member.toString()
+      );
+      io.to(receiverId).emit("chat message", message);
     });
   });
 
@@ -58,22 +61,13 @@ io.on("connection", (socket) => {
       _id: msg.conversationId,
     });
     conversation.members.forEach((member) => {
-      console.log(member);
-      io.to(member).emit("recall message", msg);
+      const receiverId = Object.keys(socketToUserIdMap).find(
+        (key) => socketToUserIdMap[key] === member.toString()
+      );
+      io.to(receiverId).emit("recall message", msg);
     });
   });
 
-  //delete message
-  socket.on("delete message", async (msg) => {
-    deleteMessage(msg);
-    const conversation = await Conversation.findOne({
-      _id: msg.conversationId,
-    });
-    conversation.members.forEach((member) => {
-      console.log(member);
-      io.to(member).emit("delete message", msg);
-    });
-  });
 
   //reaction message
   socket.on("reaction message", async (reaction) => {
@@ -82,8 +76,10 @@ io.on("connection", (socket) => {
       _id: reaction.conversationId,
     });
     conversation.members.forEach((member) => {
-      console.log(member);
-      io.to(member).emit("reaction message", reaction);
+      const receiverId = Object.keys(socketToUserIdMap).find(
+        (key) => socketToUserIdMap[key] === member.toString()
+      );
+      io.to(receiverId).emit("reaction message", reaction);
     });
   });
   // send friend request realtime
@@ -98,6 +94,7 @@ io.on("connection", (socket) => {
       receiverId: fq.receiverId,
     });
     if (receiverId) {
+      console.log("send to: " + receiverId);
       await friendRequest.save();
       await friendRequest.populate("senderId");
       io.to(receiverId).emit("newFriendRequest", friendRequest);
