@@ -12,8 +12,8 @@ const getConversationByUserId = asyncHandler(async (req, res) => {
       members: userId,
       isGroup: false,
     })
-    .populate("members")
-    .exec();
+      .populate("members")
+      .exec();
 
     //   if (!conversations || conversations.length === 0) {
     //       return res.status(200).json({ success: false, data: [] });
@@ -112,8 +112,24 @@ const addConversation = async (c) => {
   }
 };
 
+const getAllConversationByUserId = asyncHandler(async (req, res) => {
+  const userId = req.params;
+  try {
+    const conversations = await Conversation.find({
+      members: userId,
+    })
+      .populate("members")
+      .exec();
+    return res.status(200).json({ success: true, data: conversations });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ success: false, data: [] });
+  }
+});
+
 module.exports = {
   createConversation,
   getConversationByUserId,
   addConversation,
+  getAllConversationByUserId
 };
