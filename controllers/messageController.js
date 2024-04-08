@@ -31,6 +31,7 @@ const createMessage = async (msg) => {
           isSeen: msg.isSeen,
           isReceive: msg.isReceive,
           isSend: msg.isSend,
+          isReCall: msg.isReCall,
       });
 
       await message.save();
@@ -101,6 +102,27 @@ const createReaction = asyncHandler(async (r) =>{
   }
   await message.save();
 })
+// recall message
+const recallMessage = asyncHandler(async (msg) => {
+  const message = await Message.findById(msg.messageId);
+  if (!message) {
+    throw new Error("Message not found");
+  }
+  message.isReCall = true;
+  await message.save();
+});
+
+//delete message
+const deleteMessage = asyncHandler(async (msg) => {
+  console.log(msg);
+  const message = await Message.findById(msg.messageId);
+  if (!message) {
+    throw new Error("Message not found");
+  }
+  message.isDeleted = true;
+  await message.save();
+  console.log(message);
+});
 
 module.exports = {
   getAllMessage,
@@ -109,4 +131,6 @@ module.exports = {
   createReaction,
   getLastMessage,
   getMoreMessage,
+  recallMessage,
+  deleteMessage
 };
