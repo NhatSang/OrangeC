@@ -9,14 +9,13 @@ const messageSchema = new mongoose.Schema({
     //4 url type: image, video, file
     urlType: { type: Array, default: [] },
     createAt: { type: Date, default: Date.now },
-    isDeleted: { type: Boolean, default: false },
     reaction: [
       {
         userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
         type: { type: String, enum: ["like", "love", "haha", "wow", "sad", "angry","delete"]},
       },
     ],
-    isSeen: { type: Boolean, default: false },
+    isSeen: { type: Boolean, default: false }, 
     isReceive: { type: Boolean, default: false },
     isSend: { type: Boolean, default: false },
     typeFile: { type: String, default: "" },
@@ -26,6 +25,12 @@ const messageSchema = new mongoose.Schema({
       {
         messageId: { type: mongoose.Schema.Types.ObjectId, ref: "Message" },
         userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      }
+    ],
+    deleteBy:[
+      {
+        userDelete: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        isDelete: { type: Boolean, default: false },
       }
     ]
     

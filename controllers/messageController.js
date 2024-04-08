@@ -90,7 +90,6 @@ const uploadFiles = asyncHandler(async (req, res) => {
 const createReaction = asyncHandler(async (r) =>{
   // const {messageId,userId,reactType} = req.body;
   const message = await Message.findById(r.messageId);
-  console.log(message);
   if(!message) {
     throw new Error("Khong tim thay msg!")
   }
@@ -113,16 +112,7 @@ const recallMessage = asyncHandler(async (msg) => {
 });
 
 //delete message
-const deleteMessage = asyncHandler(async (msg) => {
-  console.log(msg);
-  const message = await Message.findById(msg.messageId);
-  if (!message) {
-    throw new Error("Message not found");
-  }
-  message.isDeleted = true;
-  await message.save();
-  console.log(message);
-});
+
 
 module.exports = {
   getAllMessage,
@@ -132,5 +122,4 @@ module.exports = {
   getLastMessage,
   getMoreMessage,
   recallMessage,
-  deleteMessage
 };
