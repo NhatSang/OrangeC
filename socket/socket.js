@@ -35,6 +35,11 @@ let socketToUserIdMap = {};
 
 io.on("connection", (socket) => {
   console.log("new user connection " + socket.id);
+  // mapping socketId by userId
+  socket.on("user login", (userId) => {
+    console.log("hello " + userId);
+    socketToUserIdMap[socket.id] = userId;
+  });
 
   socket.on("chat message", async (msg) => {
     // const senderId = socketToUserIdMap[socket.id];
@@ -53,7 +58,10 @@ io.on("connection", (socket) => {
       io.to(receiverId).emit("chat message", message);
     });
   });
+  //forward message
+  socket.on("forward message", async (data) => {
 
+  });
   //recall message
   socket.on("recall message", async (msg) => {
     recallMessage(msg);
@@ -67,7 +75,6 @@ io.on("connection", (socket) => {
       io.to(receiverId).emit("recall message", msg);
     });
   });
-
 
   //reaction message
   socket.on("reaction message", async (reaction) => {
@@ -103,12 +110,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  // mapping socketId by userId
-  socket.on("user login", (userId) => {
-    console.log("hello " + userId);
-    socketToUserIdMap[socket.id] = userId;
-  });
-
   //accept friend request
   socket.on("accept friend request", async (fq) => {
     try {
@@ -141,6 +142,9 @@ io.on("connection", (socket) => {
   });
   // huy ket ban
   socket.on("delete friend", async (data) => {
+    const receiverId = Object.keys(socketToUserIdMap).find(
+      (key) => socketToUserIdMap[key] === data.receiverId
+    );
     const deleteResult = await FriendRequest.findOneAndDelete({
       $or: [
         { senderId: data.senderId, receiverId: data.receiverId },
@@ -148,15 +152,16 @@ io.on("connection", (socket) => {
       ],
     });
 
-    socket.to(data.receiverId).emit("deleteFriend", data);
+    socket.to(receiverId).emit("deleteFriend", data);
   });
   // tao cuoc hoi thoai
   socket.on("create new conversation", async (conversation) => {
     const newConversation = await addConversation(conversation);
-    console.log("new conversation: " + newConversation);
     conversation.members.forEach((member) => {
-      console.log(member);
-      io.to(member).emit("newConversation", newConversation);
+      const receiverId = Object.keys(socketToUserIdMap).find(
+        (key) => socketToUserIdMap[key] === member
+      );
+      io.to(receiverId).emit("newConversation", newConversation);
     });
   });
 
