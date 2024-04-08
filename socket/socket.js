@@ -7,6 +7,8 @@ const Message = require("../models/Message");
 const {
   createMessage,
   createReaction,
+  recallMessage,
+  deleteMessage,
 } = require("../controllers/messageController");
 const FriendRequest = require("../models/FriendRequest");
 const User = require("../models/User");
@@ -45,23 +47,44 @@ io.on("connection", (socket) => {
       _id: msg.conversationId,
     });
     conversation.members.forEach((member) => {
-      console.log(member);
       io.to(member).emit("chat message", message);
     });
   });
 
-  socket.on("reaction message", async (reaction) => {
-    const senderId = socketToUserIdMap[socket.id];
-    const receiverId = Object.keys(socketToUserIdMap).find(
-      (key) => socketToUserIdMap[key] === reaction.receiverId
-    );
-    createReaction(reaction);
+  //recall message
+  socket.on("recall message", async (msg) => {
+    recallMessage(msg);
+    const conversation = await Conversation.findOne({
+      _id: msg.conversationId,
+    });
+    conversation.members.forEach((member) => {
+      console.log(member);
+      io.to(member).emit("recall message", msg);
+    });
+  });
 
-    console.log("receiverIdok", reaction);
-    console.log("receiverId", receiverId);
-    if (receiverId) {
-      io.to(receiverId).emit("reaction message", reaction);
-    }
+  //delete message
+  socket.on("delete message", async (msg) => {
+    deleteMessage(msg);
+    const conversation = await Conversation.findOne({
+      _id: msg.conversationId,
+    });
+    conversation.members.forEach((member) => {
+      console.log(member);
+      io.to(member).emit("delete message", msg);
+    });
+  });
+
+  //reaction message
+  socket.on("reaction message", async (reaction) => {
+    createReaction(reaction);
+    const conversation = await Conversation.findOne({
+      _id: reaction.conversationId,
+    });
+    conversation.members.forEach((member) => {
+      console.log(member);
+      io.to(member).emit("reaction message", reaction);
+    });
   });
   // send friend request realtime
   socket.on("send friend request", async (fq) => {
