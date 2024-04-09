@@ -192,7 +192,11 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    delete socketToUserIdMap[socket.io];
+    const userId = Object.keys(socketToUserIdMap).find(
+      (key) => socketToUserIdMap[key] === socket.id
+    );
+    console.log("disconnect :", userId);
+    delete socketToUserIdMap[userId];
   });
 });
 
