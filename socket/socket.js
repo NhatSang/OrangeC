@@ -47,6 +47,7 @@ io.on("connection", (socket) => {
     //   (key) => socketToUserIdMap[key] === msg.receiverId
     // );
     // console.log("receiverId", receiverId);
+    console.log('hiiii');
     const message = await createMessage(msg);
     const conversation = await Conversation.findOne({
       _id: msg.conversationId,
