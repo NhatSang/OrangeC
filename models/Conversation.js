@@ -7,7 +7,8 @@ const conversationSchema = new mongoose.Schema({
   },
   image: {
     type: String,
-    default: "",
+    default:
+      "https://uploadfile2002.s3.ap-southeast-1.amazonaws.com/group-user-circle.png",
   },
   isGroup: {
     type: Boolean,
