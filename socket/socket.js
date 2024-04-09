@@ -162,7 +162,7 @@ io.on("connection", (socket) => {
       );
       if (receiverId) {
         const user = await User.findOne({ _id: fq.senderIdId });
-        console.log(user);
+        console.log("accept to: ", user);
         if (user) io.to(receiverId).emit("acceptFriendRequest", user);
       }
     } catch (err) {

@@ -34,11 +34,7 @@ const messageSchema = new mongoose.Schema({
       userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     },
   ],
-  deleteBy: [
-    {
-      userDelete: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    },
-  ],
+  deleteBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 });
 
 const Message = mongoose.model("Message", messageSchema);
