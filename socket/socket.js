@@ -124,18 +124,15 @@ io.on("connection", (socket) => {
     const receiverId = Object.keys(socketToUserIdMap).find(
       (key) => socketToUserIdMap[key] === fq.receiverId
     );
-    console.log("send to: " + receiverId);
     const friendRequest = new FriendRequest({
       senderId: fq.senderId,
       receiverId: fq.receiverId,
     });
+    await friendRequest.save();
     if (receiverId) {
       console.log("send to: " + receiverId);
-      await friendRequest.save();
       await friendRequest.populate("senderId");
       io.to(receiverId).emit("newFriendRequest", friendRequest);
-    } else {
-      await friendRequest.save();
     }
   });
 
