@@ -7,7 +7,6 @@ const { uploadFile } = require("../service/file.service");
 //get all message by id conversation
 const getAllMessage = asyncHandler(async (req, res) => {
   const { conversationId } = req.params;
-  console.log(conversationId);
   const conversation = await Conversation.findById(conversationId);
   if (!conversation) {
     return res.status(404).json({ success: false, message: "Conversation not found" });
