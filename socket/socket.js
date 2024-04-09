@@ -153,15 +153,18 @@ io.on("connection", (socket) => {
   //accept friend request
   socket.on("accept friend request", async (fq) => {
     try {
+      console.log(fq);
       const receiverId = Object.keys(socketToUserIdMap).find(
-        (key) => socketToUserIdMap[key] === fq.senderId
+        (key) => socketToUserIdMap[key] === fq.senderId._id
       );
+      console.log("recId: ", fq.senderId._id);
+      console.log("senId", fq.senderId);
       const updateResult = await FriendRequest.updateOne(
         { _id: fq._id },
         { $set: { state: "accepted" } }
       );
       if (receiverId) {
-        const user = await User.findOne({ _id: fq.senderIdId });
+        const user = await User.findOne({ _id: fq.senderId });
         console.log("accept to: ", user);
         if (user) io.to(receiverId).emit("acceptFriendRequest", user);
       }
