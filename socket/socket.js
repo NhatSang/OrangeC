@@ -157,7 +157,7 @@ io.on("connection", (socket) => {
       const receiverId = Object.keys(socketToUserIdMap).find(
         (key) => socketToUserIdMap[key] === fq.senderId._id
       );
-      console.log("recId: ", fq.senderId._id);
+      console.log("recId: ", receiverId);
       console.log("senId", fq.senderId);
       const updateResult = await FriendRequest.updateOne(
         { _id: fq._id },
@@ -178,8 +178,10 @@ io.on("connection", (socket) => {
     const receiverId = Object.keys(socketToUserIdMap).find(
       (key) => socketToUserIdMap[key] === fq.senderId._id
     );
+    console.log("rejrec:",receiverId);
     const deleteResult = await FriendRequest.deleteOne({ _id: fq._id });
     if (receiverId) {
+      console.log("rejct");
       io.to(receiverId).emit("rejectFriendRequest", fq);
     }
   });
