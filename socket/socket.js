@@ -195,8 +195,8 @@ io.on("connection", (socket) => {
     const userId = Object.keys(socketToUserIdMap).find(
       (key) => socketToUserIdMap[key] === socket.id
     );
-    console.log("disconnect :", userId);
-    delete socketToUserIdMap[userId];
+    console.log("disconnect :", socket.io);
+    delete socketToUserIdMap[socket.io];
   });
 });
 
