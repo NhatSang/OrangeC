@@ -37,7 +37,6 @@ const messageSchema = new mongoose.Schema({
   deleteBy: [
     {
       userDelete: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-      isDelete: { type: Boolean, default: false },
     },
   ],
 });
