@@ -47,7 +47,6 @@ io.on("connection", (socket) => {
     //   (key) => socketToUserIdMap[key] === msg.receiverId
     // );
     // console.log("receiverId", receiverId);
-    console.log('hiiii');
     const message = await createMessage(msg);
     const conversation = await Conversation.findOne({
       _id: msg.conversationId,
@@ -103,6 +102,20 @@ io.on("connection", (socket) => {
         (key) => socketToUserIdMap[key] === member.toString()
       );
       io.to(receiverId).emit("recall message", msg);
+    });
+  });
+
+  //xoa message
+  socket.on("delete message", async (msg) => {
+    deleteMessage(msg);
+    const conversation = await Conversation.findOne({
+      _id: msg.conversationId,
+    });
+    conversation.members.forEach((member) => {
+      const receiverId = Object.keys(socketToUserIdMap).find(
+        (key) => socketToUserIdMap[key] === member.toString()
+      );
+      io.to(receiverId).emit("delete message", msg);
     });
   });
 

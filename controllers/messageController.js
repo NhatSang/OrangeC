@@ -111,7 +111,14 @@ const recallMessage = asyncHandler(async (msg) => {
 });
 
 //delete message
-
+const deleteMessage = asyncHandler(async (msg) => {
+  const message = await Message.findById(msg.messageId);
+  if (!message) {
+    throw new Error("Message not found");
+  }
+  message.deleteBy.push({ userDelete: msg.userId });
+  await message.save();
+});
 
 module.exports = {
   getAllMessage,
@@ -121,4 +128,5 @@ module.exports = {
   getLastMessage,
   getMoreMessage,
   recallMessage,
+  deleteMessage
 };
