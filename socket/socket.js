@@ -176,7 +176,7 @@ io.on("connection", (socket) => {
   // reject friend request
   socket.on("reject friend request", async (fq) => {
     const receiverId = Object.keys(socketToUserIdMap).find(
-      (key) => socketToUserIdMap[key] === fq.receiverId
+      (key) => socketToUserIdMap[key] === fq.senderId._id
     );
     const deleteResult = await FriendRequest.deleteOne({ _id: fq._id });
     if (receiverId) {
