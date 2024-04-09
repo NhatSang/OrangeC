@@ -60,7 +60,33 @@ io.on("connection", (socket) => {
   });
   //forward message
   socket.on("forward message", async (data) => {
-
+    const conversation = data.conversation;
+    const receiverId = conversation.members.filter(
+      (m) => m._id !== data.senderId
+    );
+    const msg = data.msg;
+    const newMsg = {
+      conversationId: conversation._id,
+      senderId: data.senderId,
+      receiverId: receiverId,
+      type: msg.type,
+      contentMessage: msg.contentMessage,
+      urlType: msg.urlType,
+      createAt: new Date(),
+      isDeleted: false,
+      reaction: [],
+      isSeen: false,
+      isReceive: false,
+      isSend: false,
+      isRecall: false,
+    };
+    const message = await createMessage(newMsg);
+     conversation.members.forEach((member) => {
+       const receiverId = Object.keys(socketToUserIdMap).find(
+         (key) => socketToUserIdMap[key] === member._id
+       );
+       io.to(receiverId).emit("chat message", message);
+     });
   });
   //recall message
   socket.on("recall message", async (msg) => {
