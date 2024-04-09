@@ -113,7 +113,7 @@ const addConversation = async (c) => {
 };
 
 const getAllConversationByUserId = asyncHandler(async (req, res) => {
-  const userId = req.params;
+  const {userId} = req.params;
   try {
     const conversations = await Conversation.find({
       members: userId,
@@ -131,5 +131,5 @@ module.exports = {
   createConversation,
   getConversationByUserId,
   addConversation,
-  getAllConversationByUserId
+  getAllConversationByUserId,
 };

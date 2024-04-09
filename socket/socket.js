@@ -61,9 +61,11 @@ io.on("connection", (socket) => {
   //forward message
   socket.on("forward message", async (data) => {
     const conversation = data.conversation;
+    console.log("conversation: ", conversation);
     const receiverId = conversation.members.filter(
       (m) => m._id !== data.senderId
     );
+    console.log("receiverId: ", receiverId);
     const msg = data.msg;
     const newMsg = {
       conversationId: conversation._id,
@@ -81,12 +83,13 @@ io.on("connection", (socket) => {
       isRecall: false,
     };
     const message = await createMessage(newMsg);
-     conversation.members.forEach((member) => {
-       const receiverId = Object.keys(socketToUserIdMap).find(
-         (key) => socketToUserIdMap[key] === member._id
-       );
-       io.to(receiverId).emit("chat message", message);
-     });
+    console.log(message);
+    conversation.members.forEach((member) => {
+      const receiverId = Object.keys(socketToUserIdMap).find(
+        (key) => socketToUserIdMap[key] === member._id
+      );
+      io.to(receiverId).emit("chat message", message);
+    });
   });
   //recall message
   socket.on("recall message", async (msg) => {
