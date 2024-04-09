@@ -164,7 +164,7 @@ io.on("connection", (socket) => {
         { $set: { state: "accepted" } }
       );
       if (receiverId) {
-        const user = await User.findOne({ _id: fq.senderId });
+        const user = await User.findOne({ _id: fq.senderId._id });
         console.log("accept to: ", user);
         if (user) io.to(receiverId).emit("acceptFriendRequest", user);
       }
@@ -214,8 +214,9 @@ io.on("connection", (socket) => {
     const socketId = Object.keys(socketToUserIdMap).find(
       (key) => socketToUserIdMap[key] === userId
     );
-    console.log("disconnect :", socketId);
-    delete socketToUserIdMap[socketId];
+    // console.log("disconnect :", socketId);
+    io.sockets.sockets[socketId].disconnect(true);
+    console.log(`Disconnected socket with ID: ${socketId}`);
   });
   socket.on("disconnect", () => {
     delete socketToUserIdMap[socket.io];
