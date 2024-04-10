@@ -32,6 +32,7 @@ const createMessage = async (msg) => {
       isReceive: msg.isReceive,
       isSend: msg.isSend,
       isReCall: msg.isReCall,
+      fileName: msg.fileName,
     });
 
     await message.save();
