@@ -180,8 +180,9 @@ io.on("connection", (socket) => {
     );
     console.log("rejrec:",receiverId);
     const deleteResult = await FriendRequest.deleteOne({ _id: fq._id });
+    console.log(deleteResult);
     if (receiverId) {
-      console.log("rejct");
+      console.log("rejct: ",fq);
       io.to(receiverId).emit("rejectFriendRequest", fq);
     }
   });
@@ -197,7 +198,7 @@ io.on("connection", (socket) => {
       ],
     });
 
-    socket.to(receiverId).emit("deleteFriend", data);
+    io.to(receiverId).emit("deleteFriend", data);
   });
   // tao cuoc hoi thoai
   socket.on("create new conversation", async (conversation) => {
