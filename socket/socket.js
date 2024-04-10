@@ -56,9 +56,11 @@ io.on("connection", (socket) => {
       _id: msg.conversationId,
     });
     conversation.members.forEach((member) => {
-      const receiverId = Object.keys(socketToUserIdMap).find(
-        (key) => socketToUserIdMap[key] === member.toString()
-      );
+      // const receiverId = Object.keys(socketToUserIdMap).find(
+      //   (key) => socketToUserIdMap[key] === member.toString()
+      // );
+      const receiverId = socketToUserIdMap[member.toString()];
+      console.log("recmess: ", receiverId);
       io.to(receiverId).emit("chat message", message);
     });
   });
