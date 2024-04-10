@@ -43,7 +43,7 @@ io.on("connection", (socket) => {
 
   const userId = socket.handshake.query.userId;
   console.log(userId);
-  if (userId != "undefined") socketToUserIdMap[socket.id] = userId;
+  if (userId != "undefined") socketToUserIdMap[userId] = socket.id;
 
   socket.on("chat message", async (msg) => {
     // const senderId = socketToUserIdMap[socket.id];
@@ -221,16 +221,13 @@ io.on("connection", (socket) => {
     );
     console.log("disconnect :", socketId);
     console.log("trc", Object.keys(socketToUserIdMap));
-    delete socketToUserIdMap[socketId];
+    delete socketToUserIdMap[userId];
     console.log("sau", Object.keys(socketToUserIdMap));
   });
   socket.on("disconnect", () => {
-    const socketId = Object.keys(socketToUserIdMap).find(
-      (key) => socketToUserIdMap[key] === userId
-    );
     console.log("trc", Object.keys(socketToUserIdMap));
 
-    delete socketToUserIdMap[socketId];
+    delete socketToUserIdMap[userId];
     console.log("sau", Object.keys(socketToUserIdMap));
   });
 });
