@@ -105,7 +105,6 @@ io.on("connection", (socket) => {
       _id: msg.conversationId,
     });
     conversation.members.forEach((member) => {
-      
       const receiverId = socketToUserIdMap[member.toString()];
       io.to(receiverId).emit("recall message", msg);
     });
@@ -118,7 +117,6 @@ io.on("connection", (socket) => {
       _id: msg.conversationId,
     });
     conversation.members.forEach((member) => {
-      
       const receiverId = socketToUserIdMap[member.toString()];
       io.to(receiverId).emit("delete message", msg);
     });
@@ -137,7 +135,6 @@ io.on("connection", (socket) => {
   });
   // send friend request realtime
   socket.on("send friend request", async (fq) => {
-   
     const receiverId = socketToUserIdMap[fq.receiverId];
     const friendRequest = new FriendRequest({
       senderId: fq.senderId,
@@ -175,12 +172,16 @@ io.on("connection", (socket) => {
   socket.on("reject friend request", async (fq) => {
     console.log(fq);
     const receiverId = socketToUserIdMap[fq.receiverId];
+    const senderId = socketToUserIdMap[fq.senderId._id];
     console.log("rejrec:", receiverId);
     const deleteResult = await FriendRequest.deleteOne({ _id: fq._id });
     console.log(deleteResult);
     if (receiverId) {
       console.log("rejct: ", fq);
       io.to(receiverId).emit("rejectFriendRequest", fq);
+    }
+    if (senderId) {
+      io.to(senderId).emit("rejectFriendRequest", fq);
     }
   });
   // huy ket ban
