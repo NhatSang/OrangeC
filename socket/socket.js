@@ -36,10 +36,14 @@ let socketToUserIdMap = {};
 io.on("connection", (socket) => {
   console.log("new user connection " + socket.id);
   // mapping socketId by userId
-  socket.on("user login", (userId) => {
-    console.log("hello " + userId);
-    socketToUserIdMap[socket.id] = userId;
-  });
+  // socket.on("user login", (userId) => {
+  //   console.log("hello " + userId);
+  //   socketToUserIdMap[socket.id] = userId;
+  // });
+
+  const userId = socket.handshake.query.userId;
+  console.log(userId);
+  if (userId != "undefined") socketToUserIdMap[socket.id] = userId;
 
   socket.on("chat message", async (msg) => {
     // const senderId = socketToUserIdMap[socket.id];
@@ -221,8 +225,12 @@ io.on("connection", (socket) => {
     console.log("sau", Object.keys(socketToUserIdMap));
   });
   socket.on("disconnect", () => {
+    const socketId = Object.keys(socketToUserIdMap).find(
+      (key) => socketToUserIdMap[key] === userId
+    );
     console.log("trc", Object.keys(socketToUserIdMap));
-    delete socketToUserIdMap[socket.io];
+
+    delete socketToUserIdMap[socketId];
     console.log("sau", Object.keys(socketToUserIdMap));
   });
 });
