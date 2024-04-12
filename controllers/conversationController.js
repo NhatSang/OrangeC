@@ -89,12 +89,26 @@ const createConversation = asyncHandler(async (req, res) => {
 
 const addConversation = async (c) => {
   try {
-    const conversation = new Conversation({
-      nameGroup: c.nameGroup,
-      isGroup: c.isGroup,
-      members: c.members,
-      messages: [],
-    });
+    let conversation;
+    if (c.isGroup === false) {
+      conversation = new Conversation({
+        nameGroup: c.nameGroup,
+        isGroup: c.isGroup,
+        members: c.members,
+        administrators: c.administrators,
+        messages: [],
+      });
+    } else {
+      conversation = new Conversation({
+        nameGroup: c.nameGroup,
+        isGroup: c.isGroup,
+        members: c.members,
+        administrators: c.administrators,
+        image: c.image,
+        messages: [],
+      });
+    }
+
     await conversation.save();
     const message = new Message({
       conversationId: conversation._id,
@@ -113,7 +127,7 @@ const addConversation = async (c) => {
 };
 
 const getAllConversationByUserId = asyncHandler(async (req, res) => {
-  const {userId} = req.params;
+  const { userId } = req.params;
   try {
     const conversations = await Conversation.find({
       members: userId,
@@ -127,9 +141,22 @@ const getAllConversationByUserId = asyncHandler(async (req, res) => {
   }
 });
 
+const uploadAvatarGroup = asyncHandler(async (req, res) => {
+  const { conversationId, imnage } = req.body;
+  const conversation = await Conversation.findById(conversationId);
+  if (!conversation) {
+    res.status(404).json({ message: "Conversation not found" });
+    throw new Error("Conversation not found");
+  }
+  conversation.image = image;
+  await conversation.save();
+  res.status(200).json({ message: "Upload successfully" });
+});
+
 module.exports = {
   createConversation,
   getConversationByUserId,
   addConversation,
   getAllConversationByUserId,
+  uploadAvatarGroup,
 };

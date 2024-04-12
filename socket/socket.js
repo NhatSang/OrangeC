@@ -198,6 +198,7 @@ io.on("connection", (socket) => {
   });
   // tao cuoc hoi thoai
   socket.on("create new conversation", async (conversation) => {
+    console.log(conversation);
     const newConversation = await addConversation(conversation);
     conversation.members.forEach((member) => {
       const receiverId = socketToUserIdMap[member];
