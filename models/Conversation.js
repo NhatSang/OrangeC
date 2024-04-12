@@ -14,6 +14,12 @@ const conversationSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  administrators: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
   members: [
     {
       type: mongoose.Schema.Types.ObjectId,
