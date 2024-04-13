@@ -200,10 +200,17 @@ io.on("connection", (socket) => {
   socket.on("create new conversation", async (conversation) => {
     console.log(conversation);
     const newConversation = await addConversation(conversation);
-    conversation.members.forEach((member) => {
-      const receiverId = socketToUserIdMap[member];
-      io.to(receiverId).emit("newConversation", newConversation);
-    });
+    if (conversation.isGroup) {
+      conversation.members.forEach((member) => {
+        const receiverId = socketToUserIdMap[member];
+        io.to(receiverId).emit("newConversationGroup", newConversation);
+      });
+    } else {
+      conversation.members.forEach((member) => {
+        const receiverId = socketToUserIdMap[member];
+        io.to(receiverId).emit("newConversation", newConversation);
+      });
+    }
   });
 
   socket.on("logout", (userId) => {

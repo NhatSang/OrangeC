@@ -1,46 +1,53 @@
 const mongoose = require("mongoose");
 
-const conversationSchema = new mongoose.Schema({
-  nameGroup: {
-    type: String,
-    default: "",
-  },
-  image: {
-    type: String,
-    default:
-      "https://uploadfile2002.s3.ap-southeast-1.amazonaws.com/group-user-circle.png",
-  },
-  isGroup: {
-    type: Boolean,
-    default: false,
-  },
-  administrators: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+const conversationSchema = new mongoose.Schema(
+  {
+    nameGroup: {
+      type: String,
+      default: "",
     },
-  ],
-  members: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+    image: {
+      type: String,
+      default:
+        "https://uploadfile2002.s3.ap-southeast-1.amazonaws.com/group-user-circle.png",
     },
-  ],
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  lastMessage: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Message",
-  },
-  messages: [
-    {
+    isGroup: {
+      type: Boolean,
+      default: false,
+    },
+    administrators: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    members: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    // createdAt: {
+    //   type: Date,
+    //   default: Date.now,
+    // },
+    // updateAt: {
+    //   type: Date,
+    //   default: Date.now,
+    // },
+    lastMessage: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Message",
     },
-  ],
-});
+    messages: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Message",
+      },
+    ],
+  },
+  { timestamps: true }
+);
 
 const Conversation = mongoose.model("Conversation", conversationSchema);
 module.exports = Conversation;

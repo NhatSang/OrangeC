@@ -39,7 +39,11 @@ const createMessage = async (msg) => {
 
     await Conversation.updateOne(
       { _id: msg.conversationId },
-      { $push: { messages: message._id } }
+      {
+        $push: { messages: message._id },
+        $set: { lastMessage: message._id },
+        $currentDate: { updatedAt: true },
+      }
     );
 
     return message;
