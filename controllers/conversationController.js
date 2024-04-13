@@ -141,6 +141,24 @@ const getAllConversationByUserId = asyncHandler(async (req, res) => {
   }
 });
 
+const getConversationGroupsByUserId = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const conversations = await Conversation.find({
+      members: userId,
+      isGroup: true,
+    })
+      .populate("members")
+      .populate("lastMessage")
+      .sort({ updatedAt: -1 })
+      .exec();
+    return res.status(200).json({ success: true, data: conversations });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ success: false, data: [] });
+  }
+});
+
 const uploadAvatarGroup = asyncHandler(async (req, res) => {
   const { conversationId, imnage } = req.body;
   const conversation = await Conversation.findById(conversationId);
@@ -159,4 +177,5 @@ module.exports = {
   addConversation,
   getAllConversationByUserId,
   uploadAvatarGroup,
+  getConversationGroupsByUserId,
 };
