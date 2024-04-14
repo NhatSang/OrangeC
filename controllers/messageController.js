@@ -6,13 +6,15 @@ const { uploadFile } = require("../service/file.service");
 //get all message by id conversation
 const getAllMessage = asyncHandler(async (req, res) => {
   const { conversationId } = req.params;
-  const conversation = await Conversation.findById(conversationId);
-  if (!conversation) {
-    return res
-      .status(404)
-      .json({ success: false, message: "Conversation not found" });
-  }
-  const messages = await Message.find({ conversationId });
+  // const conversation = await Conversation.findById(conversationId);
+  // if (!conversation) {
+  //   return res
+  //     .status(404)
+  //     .json({ success: false, message: "Conversation not found" });
+  // }
+  const messages = await Message.find({ conversationId })
+    .populate("senderId")
+    .exec();
   return res.status(200).json({ success: true, data: messages });
 });
 
@@ -35,7 +37,7 @@ const createMessage = async (msg) => {
       fileName: msg.fileName,
     });
 
-    await message.save();
+    (await message.save()).populate("senderId");
 
     await Conversation.updateOne(
       { _id: msg.conversationId },
