@@ -4,40 +4,55 @@ const User = require("../models/User");
 const Conversation = require("../models/Conversation");
 
 const getConversationByUserId = asyncHandler(async (req, res) => {
-  const { userId } = req.params;
+  // const { userId } = req.params;
 
+  // try {
+  //   // Step 1: Tìm tất cả các cuộc trò chuyện mà người dùng tham gia và không phải là nhóm
+  //   const conversations = await Conversation.find({
+  //     members: userId,
+  //     isGroup: false,
+  //   })
+  //     .populate("members")
+  //     .exec();
+
+  //   //   if (!conversations || conversations.length === 0) {
+  //   //       return res.status(200).json({ success: false, data: [] });
+  //   //   }
+
+  //   // Step 2: Lặp qua danh sách các cuộc trò chuyện và lấy thông tin người nhận và tin nhắn cuối cùng của mỗi cuộc trò chuyện
+  //   const conversationsWithLastMessage = [];
+  //   for (const conversation of conversations) {
+  //     if (conversation.messages.length > 0) {
+  //       lastMessage = await Message.findOne({
+  //         conversationId: conversation._id,
+  //       })
+  //         .sort({ createAt: -1 })
+  //         .exec();
+  //     }
+  //     conversationsWithLastMessage.push({
+  //       conversation: conversation,
+  //       lastMessage: lastMessage,
+  //     });
+  //   }
+
+  //   return res
+  //     .status(200)
+  //     .json({ success: true, data: conversationsWithLastMessage });
+  // } catch (error) {
+  //   console.error("Error:", error);
+  //   return res.status(500).json({ success: false, data: [] });
+  // }
+  const { userId } = req.params;
   try {
-    // Step 1: Tìm tất cả các cuộc trò chuyện mà người dùng tham gia và không phải là nhóm
     const conversations = await Conversation.find({
       members: userId,
       isGroup: false,
     })
       .populate("members")
+      .populate("lastMessage")
+      .sort({ updatedAt: -1 })
       .exec();
-
-    //   if (!conversations || conversations.length === 0) {
-    //       return res.status(200).json({ success: false, data: [] });
-    //   }
-
-    // Step 2: Lặp qua danh sách các cuộc trò chuyện và lấy thông tin người nhận và tin nhắn cuối cùng của mỗi cuộc trò chuyện
-    const conversationsWithLastMessage = [];
-    for (const conversation of conversations) {
-      if (conversation.messages.length > 0) {
-        lastMessage = await Message.findOne({
-          conversationId: conversation._id,
-        })
-          .sort({ createAt: -1 })
-          .exec();
-      }
-      conversationsWithLastMessage.push({
-        conversation: conversation,
-        lastMessage: lastMessage,
-      });
-    }
-
-    return res
-      .status(200)
-      .json({ success: true, data: conversationsWithLastMessage });
+    return res.status(200).json({ success: true, data: conversations });
   } catch (error) {
     console.error("Error:", error);
     return res.status(500).json({ success: false, data: [] });
@@ -89,12 +104,26 @@ const createConversation = asyncHandler(async (req, res) => {
 
 const addConversation = async (c) => {
   try {
-    const conversation = new Conversation({
-      nameGroup: c.nameGroup,
-      isGroup: c.isGroup,
-      members: c.members,
-      messages: [],
-    });
+    let conversation;
+    if (c.isGroup === false) {
+      conversation = new Conversation({
+        nameGroup: c.nameGroup,
+        isGroup: c.isGroup,
+        members: c.members,
+        administrators: c.administrators,
+        messages: [],
+      });
+    } else {
+      conversation = new Conversation({
+        nameGroup: c.nameGroup,
+        isGroup: c.isGroup,
+        members: c.members,
+        administrators: c.administrators,
+        image: c.image,
+        messages: [],
+      });
+    }
+
     await conversation.save();
     const message = new Message({
       conversationId: conversation._id,
@@ -113,7 +142,7 @@ const addConversation = async (c) => {
 };
 
 const getAllConversationByUserId = asyncHandler(async (req, res) => {
-  const {userId} = req.params;
+  const { userId } = req.params;
   try {
     const conversations = await Conversation.find({
       members: userId,
@@ -127,9 +156,41 @@ const getAllConversationByUserId = asyncHandler(async (req, res) => {
   }
 });
 
+const getConversationGroupsByUserId = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const conversations = await Conversation.find({
+      members: userId,
+      isGroup: true,
+    })
+      .populate("members")
+      .populate("lastMessage")
+      .sort({ updatedAt: -1 })
+      .exec();
+    return res.status(200).json({ success: true, data: conversations });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ success: false, data: [] });
+  }
+});
+
+const uploadAvatarGroup = asyncHandler(async (req, res) => {
+  const { conversationId, imnage } = req.body;
+  const conversation = await Conversation.findById(conversationId);
+  if (!conversation) {
+    res.status(404).json({ message: "Conversation not found" });
+    throw new Error("Conversation not found");
+  }
+  conversation.image = image;
+  await conversation.save();
+  res.status(200).json({ message: "Upload successfully" });
+});
+
 module.exports = {
   createConversation,
   getConversationByUserId,
   addConversation,
   getAllConversationByUserId,
+  uploadAvatarGroup,
+  getConversationGroupsByUserId,
 };

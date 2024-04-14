@@ -3,15 +3,18 @@ const Message = require("../models/Message");
 const Conversation = require("../models/Conversation");
 const { uploadFile } = require("../service/file.service");
 
-
 //get all message by id conversation
 const getAllMessage = asyncHandler(async (req, res) => {
   const { conversationId } = req.params;
-  const conversation = await Conversation.findById(conversationId);
-  if (!conversation) {
-    return res.status(404).json({ success: false, message: "Conversation not found" });
-  }
-  const messages = await Message.find({ conversationId });
+  // const conversation = await Conversation.findById(conversationId);
+  // if (!conversation) {
+  //   return res
+  //     .status(404)
+  //     .json({ success: false, message: "Conversation not found" });
+  // }
+  const messages = await Message.find({ conversationId })
+    .populate("senderId")
+    .exec();
   return res.status(200).json({ success: true, data: messages });
 });
 
@@ -34,18 +37,22 @@ const createMessage = async (msg) => {
           fileName: msg.fileName,
       });
 
-      await message.save();
+    (await message.save()).populate("senderId");
 
-      await Conversation.updateOne(
-          { _id: msg.conversationId },
-          { $push: { messages: message._id } }
-      );
+    await Conversation.updateOne(
+      { _id: msg.conversationId },
+      {
+        $push: { messages: message._id },
+        $set: { lastMessage: message._id },
+        $currentDate: { updatedAt: true },
+      }
+    );
 
-      return message;
+    return message;
   } catch (error) {
-      console.error("Error creating message:", error);
-      console.log(error);
-      throw error;
+    console.error("Error creating message:", error);
+    console.log(error);
+    throw error;
   }
 };
 
@@ -54,9 +61,13 @@ const getLastMessage = asyncHandler(async (req, res) => {
   const { conversationId } = req.params;
   const conversation = await Conversation.findById(conversationId);
   if (!conversation) {
-    return res.status(404).json({ success: false, message: "Conversation not found" });
+    return res
+      .status(404)
+      .json({ success: false, message: "Conversation not found" });
   }
-  const messages = await Message.find({ conversationId }).sort({ createAt: -1 }).limit(20);
+  const messages = await Message.find({ conversationId })
+    .sort({ createAt: -1 })
+    .limit(20);
   messages.reverse();
   return res.status(200).json({ success: true, data: messages });
 });
@@ -66,9 +77,13 @@ const getMoreMessage = asyncHandler(async (req, res) => {
   const { conversationId } = req.params;
   const conversation = await Conversation.findById(conversationId);
   if (!conversation) {
-    return res.status(404).json({ success: false, message: "Conversation not found" });
+    return res
+      .status(404)
+      .json({ success: false, message: "Conversation not found" });
   }
-  const messages = await Message.find({ conversationId }).sort({ createAt: -1 }).skip(20);
+  const messages = await Message.find({ conversationId })
+    .sort({ createAt: -1 })
+    .skip(20);
   messages.reverse();
   return res.status(200).json({ success: true, data: messages });
 });
@@ -87,20 +102,22 @@ const uploadFiles = asyncHandler(async (req, res) => {
 });
 
 // create reaction message
-const createReaction = asyncHandler(async (r) =>{
+const createReaction = asyncHandler(async (r) => {
   // const {messageId,userId,reactType} = req.body;
   const message = await Message.findById(r.messageId);
-  if(!message) {
-    throw new Error("Khong tim thay msg!")
+  if (!message) {
+    throw new Error("Khong tim thay msg!");
   }
-  const existingReaction = message.reaction.find(reaction => reaction.userId.toString() === r.userId.toString());
-  if(existingReaction){
+  const existingReaction = message.reaction.find(
+    (reaction) => reaction.userId.toString() === r.userId.toString()
+  );
+  if (existingReaction) {
     existingReaction.type = r.reactType;
-  }else {
-    message.reaction.push({userId:r.userId,type:r.reactType});
+  } else {
+    message.reaction.push({ userId: r.userId, type: r.reactType });
   }
   await message.save();
-})
+});
 // recall message
 const recallMessage = asyncHandler(async (msg) => {
   const message = await Message.findById(msg.messageId);
@@ -117,7 +134,8 @@ const deleteMessage = asyncHandler(async (msg) => {
   if (!message) {
     throw new Error("Message not found");
   }
-  message.deleteBy.push({ userDelete: msg.userId });
+  message.deleteBy = [...message.deleteBy, msg.userDelete];
+  console.log(message.deleteBy);
   await message.save();
 });
 
@@ -129,5 +147,5 @@ module.exports = {
   getLastMessage,
   getMoreMessage,
   recallMessage,
-  deleteMessage
+  deleteMessage,
 };
