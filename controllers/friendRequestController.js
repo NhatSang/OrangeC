@@ -70,8 +70,10 @@ const getFriends = asyncHandler(async (req, res) => {
   res.status(200).json({ sucess: true, data: listFriends });
 });
 const getAllFriendRequests = asyncHandler(async (req, res) => {
+  const {userId} = req.params;
   const listFriendRequests = await FriendRequest.find({
     state: "pending",
+    $or: [{ senderId: userId }, { receiverId: userId }],
   });
   if (!listFriendRequests) {
     return res.status(404).json({

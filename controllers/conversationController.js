@@ -186,6 +186,20 @@ const uploadAvatarGroup = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "Upload successfully" });
 });
 
+const updateName = async (conversationId, newName) => {
+  const updateResult = Conversation.updateOne(
+    { _id: conversationId },
+    { $set: { nameGroup: newName } }
+  );
+  if (updateResult.nModified === 0) {
+    return res
+      .status(404)
+      .json({ sucess: false, message: "id not found or no changes applied" });
+  }
+
+  res.status(200).json({ sucess: true, message: "Updated successfully" });
+};
+
 module.exports = {
   createConversation,
   getConversationByUserId,

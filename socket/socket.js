@@ -136,6 +136,7 @@ io.on("connection", (socket) => {
   // send friend request realtime
   socket.on("send friend request", async (fq) => {
     const receiverId = socketToUserIdMap[fq.receiverId];
+    console.log("fq:", fq);
     const friendRequest = new FriendRequest({
       senderId: fq.senderId,
       receiverId: fq.receiverId,
@@ -211,6 +212,30 @@ io.on("connection", (socket) => {
         io.to(receiverId).emit("newConversation", newConversation);
       });
     }
+  });
+
+  socket.on("change name group", async (data) => {
+    const updateResult = await Conversation.updateOne(
+      { _id: data.conversation._id },
+      { $set: { nameGroup: data.newName } }
+    );
+    data.conversation.members.forEach((member) => {
+      const receiverId = socketToUserIdMap[member._id];
+      io.to(receiverId).emit("newGroupName", data);
+    });
+  });
+
+  socket.on("add member to group", async (data) => {
+    const updateResult = await Conversation.updateOne(
+      { _id: data.conversation._id },
+      { $push: { members: data.member } }
+    );
+    data.conversation.members.forEach((member) => {
+      const receiverId = socketToUserIdMap[member._id];
+      const user = socketToUserIdMap[userId];
+      io.to(user).emit("respondAdd",data.conversation)
+      io.to(receiverId).emit("newMember", data.conversation);
+    });
   });
 
   socket.on("logout", (userId) => {
