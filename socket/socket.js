@@ -200,17 +200,19 @@ io.on("connection", (socket) => {
   // tao cuoc hoi thoai
   socket.on("create new conversation", async (conversation) => {
     console.log(conversation);
-    const newConversation = await addConversation(conversation);
-    if (conversation.isGroup) {
-      conversation.members.forEach((member) => {
-        const receiverId = socketToUserIdMap[member];
-        io.to(receiverId).emit("newConversationGroup", newConversation);
-      });
-    } else {
-      conversation.members.forEach((member) => {
-        const receiverId = socketToUserIdMap[member];
-        io.to(receiverId).emit("newConversation", newConversation);
-      });
+    if (conversation.members.length > 2) {
+      const newConversation = await addConversation(conversation);
+      if (conversation.isGroup) {
+        conversation.members.forEach((member) => {
+          const receiverId = socketToUserIdMap[member];
+          io.to(receiverId).emit("newConversationGroup", newConversation);
+        });
+      } else {
+        conversation.members.forEach((member) => {
+          const receiverId = socketToUserIdMap[member];
+          io.to(receiverId).emit("newConversation", newConversation);
+        });
+      }
     }
   });
 
@@ -219,10 +221,16 @@ io.on("connection", (socket) => {
       { _id: data.conversation._id },
       { $set: { nameGroup: data.newName } }
     );
-    data.conversation.members.forEach((member) => {
-      const receiverId = socketToUserIdMap[member._id];
-      io.to(receiverId).emit("newGroupName", data);
-    });
+    const updatedConversation = await Conversation.findOne({
+      _id: data.conversation._id,
+    }).populate("members");
+    if (updatedConversation)
+      updatedConversation.members.forEach((member) => {
+        const receiverId = socketToUserIdMap[member._id];
+        // const user = socketToUserIdMap[userId];
+        // io.to(user).emit("respondAdd", updatedConversation);
+        io.to(receiverId).emit("updateConversation", updatedConversation);
+      });
   });
 
   socket.on("add member to group", async (data) => {
@@ -230,13 +238,99 @@ io.on("connection", (socket) => {
       { _id: data.conversation._id },
       { $push: { members: data.member } }
     );
-    data.conversation.members.forEach((member) => {
-      const receiverId = socketToUserIdMap[member._id];
-      const user = socketToUserIdMap[userId];
-      io.to(user).emit("respondAdd",data.conversation)
-      io.to(receiverId).emit("newMember", data.conversation);
-    });
+    const updatedConversation = await Conversation.findOne({
+      _id: data.conversation._id,
+    }).populate("members");
+    if (updatedConversation)
+      updatedConversation.members.forEach((member) => {
+        const receiverId = socketToUserIdMap[member._id];
+        const user = socketToUserIdMap[userId];
+        io.to(user).emit("respondAdd", updatedConversation);
+        io.to(receiverId).emit("updateConversation", updatedConversation);
+      });
   });
+  //remove member from group
+  socket.on("remove member", async (data) => {
+    if (data.conversation.administrators.includes(data.member._id)) {
+      const updateResult = await Conversation.updateOne(
+        { _id: data.conversation._id },
+        {
+          $pull: {
+            members: data.member._id,
+            administrators: data.member._id,
+          },
+        }
+      );
+    } else {
+      const updateResult = await Conversation.updateOne(
+        { _id: data.conversation._id },
+        { $pull: { members: data.member._id } }
+      );
+    }
+
+    const updatedConversation = await Conversation.findOne({
+      _id: data.conversation._id,
+    }).populate("members");
+    if (updatedConversation)
+      updatedConversation.members.forEach((member) => {
+        const receiverId = socketToUserIdMap[member._id];
+        // const user = socketToUserIdMap[userId];
+        // io.to(user).emit("respondAdd", updatedConversation);
+        io.to(receiverId).emit("removeMember", updatedConversation);
+      });
+  });
+  socket.on("grant admin", async (data) => {
+    const updateResult = await Conversation.updateOne(
+      { _id: data.conversation._id },
+      { $push: { administrators: data.member._id } }
+    );
+    const updatedConversation = await Conversation.findOne({
+      _id: data.conversation._id,
+    }).populate("members");
+    if (updatedConversation)
+      updatedConversation.members.forEach((member) => {
+        const receiverId = socketToUserIdMap[member._id];
+        // const user = socketToUserIdMap[userId];
+        // io.to(user).emit("respondAdd", updatedConversation);
+        io.to(receiverId).emit("updateConversation", updatedConversation);
+      });
+  });
+
+  socket.on("revoke admin", async (data) => {
+    const updateResult = await Conversation.updateOne(
+      { _id: data.conversation._id },
+      { $pull: { administrators: data.member._id } }
+    );
+    const updatedConversation = await Conversation.findOne({
+      _id: data.conversation._id,
+    }).populate("members");
+    if (updatedConversation)
+      updatedConversation.members.forEach((member) => {
+        const receiverId = socketToUserIdMap[member._id];
+        // const user = socketToUserIdMap[userId];
+        // io.to(user).emit("respondAdd", updatedConversation);
+        io.to(receiverId).emit("updateConversation", updatedConversation);
+      });
+  });
+
+  socket.on("disband the group", async (conversation) => {
+    try {
+      const deleteCon = await Conversation.deleteOne({ _id: conversation._id });
+      const deleteMess = await Message.deleteMany({
+        conversationId: conversation._id,
+      });
+      conversation.members.forEach((member) => {
+        const receiverId = socketToUserIdMap[member._id];
+        // const user = socketToUserIdMap[userId];
+        // io.to(user).emit("respondAdd", updatedConversation);
+        io.to(receiverId).emit("disbandGroup", conversation);
+      });
+    } catch (error) {
+      console.error("can't disband the group");
+    }
+  });
+
+  socket;
 
   socket.on("logout", (userId) => {
     console.log("trc", Object.keys(socketToUserIdMap));
