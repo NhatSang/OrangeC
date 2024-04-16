@@ -134,7 +134,7 @@ const addConversation = async (c) => {
     await message.save();
     conversation.messages.push(message);
     await conversation.save();
-    return conversation;
+    return conversation.populate("members");
   } catch (error) {
     console.log("error create conversation: ", error);
     throw error;

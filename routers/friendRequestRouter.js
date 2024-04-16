@@ -16,6 +16,6 @@ Router.get("/getFriends/:userId", getFriends);
 Router.get("/getFriendRequest/:userId", getFriendRequests);
 Router.delete("/:id", rejectFriendRequest);
 Router.post("/deleteFriend", deleteFriend);
-Router.get("/getAllFriendRequests", getAllFriendRequests);
+Router.get("/getAllFriendRequests/:userId", getAllFriendRequests);
 
 module.exports = Router;
