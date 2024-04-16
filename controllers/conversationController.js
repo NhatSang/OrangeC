@@ -175,7 +175,7 @@ const getConversationGroupsByUserId = asyncHandler(async (req, res) => {
 });
 
 const uploadAvatarGroup = asyncHandler(async (req, res) => {
-  const { conversationId, imnage } = req.body;
+  const { conversationId, image } = req.body;
   const conversation = await Conversation.findById(conversationId);
   if (!conversation) {
     res.status(404).json({ message: "Conversation not found" });
@@ -183,7 +183,7 @@ const uploadAvatarGroup = asyncHandler(async (req, res) => {
   }
   conversation.image = image;
   await conversation.save();
-  res.status(200).json({ message: "Upload successfully" });
+  res.status(200).json({ message: "Upload successfully",data:conversation });
 });
 
 module.exports = {
