@@ -239,7 +239,7 @@ io.on("connection", (socket) => {
       _id: data.conversation._id,
     }).populate("members");
     if (updatedConversation)
-      conversation.members.forEach((member) => {
+      data.conversation.members.forEach((member) => {
         const receiverId = socketToUserIdMap[member._id];
         const user = socketToUserIdMap[userId];
         io.to(user).emit("respondAdd", updatedConversation);
