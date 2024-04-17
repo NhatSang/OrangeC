@@ -239,10 +239,11 @@ io.on("connection", (socket) => {
       _id: data.conversation._id,
     }).populate("members");
     if (updatedConversation)
-      updatedConversation.members.forEach((member) => {
+      conversation.members.forEach((member) => {
         const receiverId = socketToUserIdMap[member._id];
         const user = socketToUserIdMap[userId];
         io.to(user).emit("respondAdd", updatedConversation);
+        io.to(socketToUserIdMap[data.member._id]).emit("addToGroup",updatedConversation);
         io.to(receiverId).emit("updateConversation", updatedConversation);
       });
   });
