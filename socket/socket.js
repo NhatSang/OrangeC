@@ -272,7 +272,7 @@ io.on("connection", (socket) => {
     if (updatedConversation) {
       if (data.member._id !== userId)
         io.to(socketToUserIdMap[data.member._id]).emit(
-          "removeMember",
+          "removeFormMember",
           updatedConversation
         );
       updatedConversation.members.forEach((member) => {
