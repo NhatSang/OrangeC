@@ -199,20 +199,17 @@ io.on("connection", (socket) => {
   });
   // tao cuoc hoi thoai
   socket.on("create new conversation", async (conversation) => {
-    console.log(conversation);
-    if (conversation.members.length > 2) {
-      const newConversation = await addConversation(conversation);
-      if (conversation.isGroup) {
-        conversation.members.forEach((member) => {
-          const receiverId = socketToUserIdMap[member];
-          io.to(receiverId).emit("newConversationGroup", newConversation);
-        });
-      } else {
-        conversation.members.forEach((member) => {
-          const receiverId = socketToUserIdMap[member];
-          io.to(receiverId).emit("newConversation", newConversation);
-        });
-      }
+    const newConversation = await addConversation(conversation);
+    if (conversation.isGroup) {
+      conversation.members.forEach((member) => {
+        const receiverId = socketToUserIdMap[member];
+        io.to(receiverId).emit("newConversationGroup", newConversation);
+      });
+    } else {
+      conversation.members.forEach((member) => {
+        const receiverId = socketToUserIdMap[member];
+        io.to(receiverId).emit("newConversation", newConversation);
+      });
     }
   });
 
