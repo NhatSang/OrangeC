@@ -249,7 +249,7 @@ io.on("connection", (socket) => {
         io.to(receiverId).emit("updateConversation", updatedConversation);
       });
   });
-  //remove member from group
+  //remove member from group if userd === memberId thi la leave group
   socket.on("remove member", async (data) => {
     if (data.conversation.administrators.includes(data.member._id)) {
       const updateResult = await Conversation.updateOne(
@@ -271,13 +271,19 @@ io.on("connection", (socket) => {
     const updatedConversation = await Conversation.findOne({
       _id: data.conversation._id,
     }).populate("members");
-    if (updatedConversation)
+    if (updatedConversation) {
+      if (data.member._id !== userId)
+        io.to(socketToUserIdMap[data.member._id]).emit(
+          "removeMember",
+          updatedConversation
+        );
       updatedConversation.members.forEach((member) => {
         const receiverId = socketToUserIdMap[member._id];
-        // const user = socketToUserIdMap[userId];
-        // io.to(user).emit("respondAdd", updatedConversation);
-        io.to(receiverId).emit("removeMember", updatedConversation);
+        if (data.member._id === userId)
+          io.to(receiverId).emit("leaveGroup", updatedConversation);
+        else io.to(receiverId).emit("removeMember", updatedConversation);
       });
+    }
   });
   socket.on("grant admin", async (data) => {
     const updateResult = await Conversation.updateOne(
@@ -290,8 +296,6 @@ io.on("connection", (socket) => {
     if (updatedConversation)
       updatedConversation.members.forEach((member) => {
         const receiverId = socketToUserIdMap[member._id];
-        // const user = socketToUserIdMap[userId];
-        // io.to(user).emit("respondAdd", updatedConversation);
         io.to(receiverId).emit("updateConversation", updatedConversation);
       });
   });
@@ -307,8 +311,6 @@ io.on("connection", (socket) => {
     if (updatedConversation)
       updatedConversation.members.forEach((member) => {
         const receiverId = socketToUserIdMap[member._id];
-        // const user = socketToUserIdMap[userId];
-        // io.to(user).emit("respondAdd", updatedConversation);
         io.to(receiverId).emit("updateConversation", updatedConversation);
       });
   });
@@ -321,8 +323,6 @@ io.on("connection", (socket) => {
       });
       conversation.members.forEach((member) => {
         const receiverId = socketToUserIdMap[member._id];
-        // const user = socketToUserIdMap[userId];
-        // io.to(user).emit("respondAdd", updatedConversation);
         io.to(receiverId).emit("disbandGroup", conversation);
       });
     } catch (error) {
