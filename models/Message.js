@@ -6,8 +6,7 @@ const messageSchema = new mongoose.Schema({
   receiverId: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   type: {
     type: String,
-    enum: ["text", "image", "video", "file", "sticker", "first"],
-    default: "first",
+    enum: ["text", "image", "video", "file", "sticker"]
   },
   contentMessage: { type: String, default: "" },
   //4 url type: image, video, file
