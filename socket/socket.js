@@ -199,20 +199,17 @@ io.on("connection", (socket) => {
   });
   // tao cuoc hoi thoai
   socket.on("create new conversation", async (conversation) => {
-    console.log(conversation);
-    if (conversation.members.length > 2) {
-      const newConversation = await addConversation(conversation);
-      if (conversation.isGroup) {
-        conversation.members.forEach((member) => {
-          const receiverId = socketToUserIdMap[member];
-          io.to(receiverId).emit("newConversationGroup", newConversation);
-        });
-      } else {
-        conversation.members.forEach((member) => {
-          const receiverId = socketToUserIdMap[member];
-          io.to(receiverId).emit("newConversation", newConversation);
-        });
-      }
+    const newConversation = await addConversation(conversation);
+    if (conversation.isGroup) {
+      conversation.members.forEach((member) => {
+        const receiverId = socketToUserIdMap[member];
+        io.to(receiverId).emit("newConversationGroup", newConversation);
+      });
+    } else {
+      conversation.members.forEach((member) => {
+        const receiverId = socketToUserIdMap[member];
+        io.to(receiverId).emit("newConversation", newConversation);
+      });
     }
   });
 
@@ -242,10 +239,11 @@ io.on("connection", (socket) => {
       _id: data.conversation._id,
     }).populate("members");
     if (updatedConversation)
-      updatedConversation.members.forEach((member) => {
+      data.conversation.members.forEach((member) => {
         const receiverId = socketToUserIdMap[member._id];
         const user = socketToUserIdMap[userId];
         io.to(user).emit("respondAdd", updatedConversation);
+        io.to(socketToUserIdMap[data.member._id]).emit("addToGroup",updatedConversation);
         io.to(receiverId).emit("updateConversation", updatedConversation);
       });
   });
