@@ -40,7 +40,7 @@ const getAllUser = asyncHandler(async (req, res) => {
 
 //up avatar
 const uploadAvatar = asyncHandler(async (req, res) => {
-  const { userId,image } = req.body;
+  const { userId, image } = req.body;
   const user = await User.findById(userId);
   if (!user) {
     res.status(404).json({ message: "User not found" });
@@ -61,8 +61,8 @@ const register = asyncHandler(async (req, res) => {
     image: req.body.image,
     gender: req.body.gender,
     password: req.body.password,
+    active: true,
   });
-  console.log(user);
   const existingEmail = await User.findOne({ email: req.body.email });
   if (existingEmail) {
     res.status(400).json({ message: "Email already exists" });
@@ -79,8 +79,14 @@ const register = asyncHandler(async (req, res) => {
   user.password = hashedPassword;
   await user.save();
 
+
+  const userRespones = await User.findOne({ _id: user._id });
+  const accessToken = getJwt(user.email, user._id);
+
   res.status(200).json({
-    message: "Register successfully",
+    message: "ok",
+    userRespones,
+    accessToken: accessToken,
   });
 });
 
@@ -97,7 +103,7 @@ const login = asyncHandler(async (req, res) => {
     throw new Error("Email or Password is incorrect");
   }
   const user = await User.findOne({ _id: existingEmail._id });
-  const accessToken = getJwt(username, existingEmail.userId);
+  const accessToken = getJwt(username, existingEmail._id);
 
   res.status(200).json({
     message: "Login successfully",
@@ -130,26 +136,18 @@ const findUsers = asyncHandler(async (req, res) => {
 
 //ham check sdt va email da ton tai chua
 const checkInfo = asyncHandler(async (req, res) => {
-  const { email, phone } = req.body;
+  const { email } = req.body;
   const existingEmail = await User.findOne({ email: email });
-  const existingPhone = await User.findOne({ phone: phone });
   if (existingEmail) {
     res.status(200).json({ message: "email" });
-  }
-  
-  else if (existingPhone) {
-    res.status(200).json({ message: "phone" });
-  }
-
-  else {
+  } else {
     res.status(200).json({ message: "ok" });
   }
-  
 });
 // ham chinh sua thong tin ca nhan
 const editProfile = asyncHandler(async (req, res) => {
-  const {userId,name,dateOfBirth,gender} = req.body;
-  console.log('req.body',req.body);
+  const { userId, name, dateOfBirth, gender } = req.body;
+  console.log('req.body', req.body);
   const user = await User.findById(userId);
   if (!user) {
     res.status(404).json({ message: "User not found" });
@@ -159,13 +157,13 @@ const editProfile = asyncHandler(async (req, res) => {
   user.dateOfBirth = dateOfBirth;
   user.gender = gender;
   await user.save();
-  res.status(200).json({ message: "ok",user });
+  res.status(200).json({ message: "ok", user });
 });
 
 //ham change password CO KIEM TRA PASSWORD CU
 const changePassword = asyncHandler(async (req, res) => {
-  const { userId, oldpassword,password } = req.body;
-  console.log('req.body',req.body);
+  const { userId, oldpassword, password } = req.body;
+  console.log('req.body', req.body);
   const user = await User.findById(userId);
   if (!user) {
     res.status(404).json({ message: "User not found" });
@@ -185,4 +183,4 @@ const changePassword = asyncHandler(async (req, res) => {
 
 
 
-module.exports = { getAllUser, register, login, refreshToken, findUsers, uploadAvatar,checkInfo,editProfile,changePassword};
+module.exports = { getAllUser, register, login, refreshToken, findUsers, uploadAvatar, checkInfo, editProfile, changePassword };
