@@ -20,22 +20,22 @@ const getAllMessage = asyncHandler(async (req, res) => {
 
 const createMessage = async (msg) => {
   try {
-    const message = new Message({
-      conversationId: msg.conversationId,
-      senderId: msg.senderId,
-      receiverId: msg.receiverId,
-      type: msg.type,
-      contentMessage: msg.contentMessage,
-      urlType: msg.urlType,
-      createAt: msg.createAt,
-      isDeleted: msg.isDeleted,
-      reaction: msg.reaction,
-      isSeen: msg.isSeen,
-      isReceive: msg.isReceive,
-      isSend: msg.isSend,
-      isReCall: msg.isReCall,
-      fileName: msg.fileName,
-    });
+      const message = new Message({
+          conversationId: msg.conversationId,
+          senderId: msg.senderId,
+          receiverId: msg.receiverId,
+          type: msg.type,
+          contentMessage: msg.contentMessage,
+          urlType: msg.urlType,
+          createAt: msg.createAt,
+          isDeleted: msg.isDeleted,
+          reaction: msg.reaction,
+          isSeen: msg.isSeen,
+          isReceive: msg.isReceive,
+          isSend: msg.isSend,
+          isReCall: msg.isReCall,
+          fileName: msg.fileName,
+      });
 
     (await message.save()).populate("senderId");
 

@@ -8,6 +8,7 @@ const userSchma = new mongoose.Schema({
   image: { type: String, default: "" },
   gender: { type: String, enum: ["male", "female"] },
   password: { type: String, required: true },
+  active: { type: Boolean, default: true },
 });
 
 const User = mongoose.model("User", userSchma);

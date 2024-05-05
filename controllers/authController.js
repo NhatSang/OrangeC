@@ -36,7 +36,7 @@ const verifycation = asyncHandler(async (req, res) => {
     try {
         await handledSendMailCode(code, username);
         res.status(200).json({
-            message: "Send code to email success",
+            message: "ok",
             data: {
                 code: code,
             }
