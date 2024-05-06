@@ -94,19 +94,19 @@ const login = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
   const existingEmail = await User.findOne({ email: username });
   if (!existingEmail) {
-    res.status(403).json({ message: "Email not found" });
-    throw new Error("Email not found");
+    res.status(200).json({ message: "email" });
+    // throw new Error("Email not found");
   }
   const validPassword = await bcrypt.compare(password, existingEmail.password);
   if (!validPassword) {
-    res.status(401).json({ message: "Email or Password is incorrect" });
-    throw new Error("Email or Password is incorrect");
+    res.status(200).json({ message: "password" });
+    // throw new Error("Email or Password is incorrect");
   }
   const user = await User.findOne({ _id: existingEmail._id });
   const accessToken = getJwt(username, existingEmail._id);
 
   res.status(200).json({
-    message: "Login successfully",
+    message: "ok",
     user,
     accessToken: accessToken,
   });
@@ -160,7 +160,7 @@ const editProfile = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "ok", user });
 });
 
-//ham change password CO KIEM TRA PASSWORD CU
+
 const changePassword = asyncHandler(async (req, res) => {
   const { userId, oldpassword, password } = req.body;
   console.log('req.body', req.body);
@@ -181,6 +181,21 @@ const changePassword = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "ok" });
 });
 
+const changePassword1 = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+  console.log('req.body', req.body);
+  const user = await User.findOne({ email});
+  if (!user) {
+    res.status(404).json({ message: "email" });
+    throw new Error("User not found");
+  }
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+  user.password = hashedPassword;
+  await user.save();
+  res.status(200).json({ message: "ok" });
+});
 
 
-module.exports = { getAllUser, register, login, refreshToken, findUsers, uploadAvatar, checkInfo, editProfile, changePassword };
+
+module.exports = { getAllUser, register, login, refreshToken, findUsers, uploadAvatar, checkInfo, editProfile, changePassword,changePassword1 };

@@ -48,33 +48,23 @@ const verifycation = asyncHandler(async (req, res) => {
 
 const forgotPassword = asyncHandler(async (req, res) => {
     const { username } = req.body;
-    const newPassword = Math.random().toString(36).slice(-8);
-    try {
-        const user = await User.findOne({ email: username });
-
-        if (user) {
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(newPassword, salt);
-            user.password = hashedPassword;
-            await user.save();
-            await transporter.sendMail({
-                from: `"OrangeChat" <${process.env.EMAIL}>`,
-                to: username,
-                subject: "Forgot Password",
-                text: "Your new password",
-                html: `New Password: <b>${newPassword}</b>`,
-            });
-
-        } else {
+    const user = await User.findOne({ email: username });
+    if (!user) {
+        res.status(200).json({ message: "email" });
+        throw new Error("Email not found");
+    }else{
+        const code = Math.floor(100000 + Math.random() * 900000);
+        try {
+            await handledSendMailCode(code, username);
             res.status(200).json({
-                message: "Email chưa được đăng ký",
+                message: "ok",
+                data: {
+                    code: code,
+                }
             });
+        } catch (error) {
+            res.json({ message: error });
         }
-        res.status(200).json({
-            message: "ok",
-        });
-    } catch (error) {
-        res.json({ message: error });
     }
 });
 
