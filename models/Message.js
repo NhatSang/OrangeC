@@ -6,7 +6,17 @@ const messageSchema = new mongoose.Schema({
   receiverId: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   type: {
     type: String,
-    enum: ["text", "image", "video", "file", "sticker", "first"],
+    enum: [
+      "text",
+      "image",
+      "video",
+      "file",
+      "sticker",
+      "first",
+      "notificationRemove",
+      "notificationLeave",
+      "notificationAdd",
+    ],
     default: "first",
   },
   contentMessage: { type: String, default: "" },
