@@ -36,31 +36,17 @@ let socketToUserIdMap = {};
 io.on("connection", (socket) => {
   console.log("new user connection " + socket.id);
   // mapping socketId by userId
-  // socket.on("user login", (userId) => {
-  //   console.log("hello " + userId);
-  //   socketToUserIdMap[socket.id] = userId;
-  // });
-
   const userId = socket.handshake.query.userId;
   console.log(userId);
   if (userId != "undefined") socketToUserIdMap[userId] = socket.id;
 
   socket.on("chat message", async (msg) => {
-    // const senderId = socketToUserIdMap[socket.id];
-    // const receiverId = Object.keys(socketToUserIdMap).find(
-    //   (key) => socketToUserIdMap[key] === msg.receiverId
-    // );
-    // console.log("receiverId", receiverId);
     const message = await createMessage(msg);
     const conversation = await Conversation.findOne({
       _id: msg.conversationId,
     });
     conversation.members.forEach((member) => {
-      // const receiverId = Object.keys(socketToUserIdMap).find(
-      //   (key) => socketToUserIdMap[key] === member.toString()
-      // );
       const receiverId = socketToUserIdMap[member.toString()];
-      console.log("recmess: ", receiverId);
       io.to(receiverId).emit("chat message", message);
     });
   });
@@ -91,9 +77,6 @@ io.on("connection", (socket) => {
     const message = await createMessage(newMsg);
     console.log(message);
     conversation.members.forEach((member) => {
-      // const receiverId = Object.keys(socketToUserIdMap).find(
-      //   (key) => socketToUserIdMap[key] === member._id
-      // );
       const receiverId = socketToUserIdMap[member._id];
       io.to(receiverId).emit("chat message", message);
     });
@@ -224,8 +207,6 @@ io.on("connection", (socket) => {
     if (updatedConversation)
       updatedConversation.members.forEach((member) => {
         const receiverId = socketToUserIdMap[member._id];
-        // const user = socketToUserIdMap[userId];
-        // io.to(user).emit("respondAdd", updatedConversation);
         io.to(receiverId).emit("updateConversation", updatedConversation);
       });
   });
@@ -238,14 +219,29 @@ io.on("connection", (socket) => {
     const updatedConversation = await Conversation.findOne({
       _id: data.conversation._id,
     }).populate("members");
-    if (updatedConversation)
+    if (updatedConversation) {
+      const notification = new Message({
+        conversationId: updatedConversation._id,
+        senderId: data.member._id,
+        receiverId: updatedConversation.members,
+        type: "notificationAdd",
+      });
+      (await notification.save()).populate("senderId");
+      updatedConversation.messages.push(notification);
+      await updatedConversation.save();
+
+      const user = socketToUserIdMap[userId];
+      io.to(user).emit("respondAdd", updatedConversation);
+      io.to(socketToUserIdMap[data.member._id]).emit(
+        "addToGroup",
+        updatedConversation
+      );
       data.conversation.members.forEach((member) => {
         const receiverId = socketToUserIdMap[member._id];
-        const user = socketToUserIdMap[userId];
-        io.to(user).emit("respondAdd", updatedConversation);
-        io.to(socketToUserIdMap[data.member._id]).emit("addToGroup",updatedConversation);
+        io.to(receiverId).emit("addMember", notification);
         io.to(receiverId).emit("updateConversation", updatedConversation);
       });
+    }
   });
   //remove member from group if userd === memberId thi la leave group
   socket.on("remove member", async (data) => {
@@ -270,16 +266,33 @@ io.on("connection", (socket) => {
       _id: data.conversation._id,
     }).populate("members");
     if (updatedConversation) {
-      if (data.member._id !== userId)
+      // tạo thông báo rời xóa thành viên
+      const notification = new Message({
+        conversationId: updatedConversation._id,
+        senderId: data.member._id,
+        receiverId: updatedConversation.members,
+        type: "notificationRemove",
+      });
+      // nếu rời nhóm thì thay đổi thành thông báo rời nhóm
+      if (data.member._id === userId) {
+        notification.type = "notificationLeave";
+      }
+      // gữi sự kiện bị mời ra khỏi nhóm
+      else {
         io.to(socketToUserIdMap[data.member._id]).emit(
-          "removeMember",
+          "deletedMember",
           updatedConversation
         );
+      }
+      (await notification.save()).populate("senderId");
+      updatedConversation.messages.push(notification);
+      await updatedConversation.save();
       updatedConversation.members.forEach((member) => {
         const receiverId = socketToUserIdMap[member._id];
-        if (data.member._id === userId)
-          io.to(receiverId).emit("leaveGroup", updatedConversation);
-        else io.to(receiverId).emit("removeMember", updatedConversation);
+        io.to(receiverId).emit("removeMember", {
+          conversation: updatedConversation,
+          notification: notification,
+        });
       });
     }
   });
@@ -331,15 +344,10 @@ io.on("connection", (socket) => {
   socket;
 
   socket.on("logout", (userId) => {
-    console.log("trc", Object.keys(socketToUserIdMap));
     delete socketToUserIdMap[userId];
-    console.log("sau", Object.keys(socketToUserIdMap));
   });
   socket.on("disconnect", () => {
-    console.log("trc", Object.keys(socketToUserIdMap));
-
     delete socketToUserIdMap[userId];
-    console.log("sau", Object.keys(socketToUserIdMap));
   });
 });
 
