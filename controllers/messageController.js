@@ -20,22 +20,22 @@ const getAllMessage = asyncHandler(async (req, res) => {
 
 const createMessage = async (msg) => {
   try {
-      const message = new Message({
-          conversationId: msg.conversationId,
-          senderId: msg.senderId,
-          receiverId: msg.receiverId,
-          type: msg.type,
-          contentMessage: msg.contentMessage,
-          urlType: msg.urlType,
-          createAt: msg.createAt,
-          isDeleted: msg.isDeleted,
-          reaction: msg.reaction,
-          isSeen: msg.isSeen,
-          isReceive: msg.isReceive,
-          isSend: msg.isSend,
-          isReCall: msg.isReCall,
-          fileName: msg.fileName,
-      });
+    const message = new Message({
+      conversationId: msg.conversationId,
+      senderId: msg.senderId,
+      receiverId: msg.receiverId,
+      type: msg.type,
+      contentMessage: msg.contentMessage,
+      urlType: msg.urlType,
+      createAt: msg.createAt,
+      isDeleted: msg.isDeleted,
+      reaction: msg.reaction,
+      isSeen: msg.isSeen,
+      isReceive: msg.isReceive,
+      isSend: msg.isSend,
+      isReCall: msg.isReCall,
+      fileName: msg.fileName,
+    });
 
     (await message.save()).populate("senderId");
 
@@ -85,6 +85,36 @@ const getMoreMessage = asyncHandler(async (req, res) => {
     .sort({ createAt: -1 })
     .skip(20);
   messages.reverse();
+  return res.status(200).json({ success: true, data: messages });
+});
+
+// get Image messages
+const getImageMessages = asyncHandler(async (req, res) => {
+  const { conversationId } = req.params;
+  const messages = await Message.find({
+    conversationId: conversationId,
+    type: "image",
+  });
+  return res.status(200).json({ success: true, data: messages });
+});
+
+// get Video messages
+const getVideoMessages = asyncHandler(async (req, res) => {
+  const { conversationId } = req.params;
+  const messages = await Message.find({
+    conversationId: conversationId,
+    type: "video",
+  });
+  return res.status(200).json({ success: true, data: messages });
+});
+
+// get file messages
+const getFileMessages = asyncHandler(async (req, res) => {
+  const { conversationId } = req.params;
+  const messages = await Message.find({
+    conversationId: conversationId,
+    type: "file",
+  });
   return res.status(200).json({ success: true, data: messages });
 });
 
@@ -148,4 +178,7 @@ module.exports = {
   getMoreMessage,
   recallMessage,
   deleteMessage,
+  getImageMessages,
+  getVideoMessages,
+  getFileMessages,
 };
