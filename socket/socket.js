@@ -119,16 +119,24 @@ io.on("connection", (socket) => {
   // send friend request realtime
   socket.on("send friend request", async (fq) => {
     const receiverId = socketToUserIdMap[fq.receiverId];
-    console.log("fq:", fq);
-    const friendRequest = new FriendRequest({
-      senderId: fq.senderId,
-      receiverId: fq.receiverId,
+    const checkResult = await FriendRequest.findOne({
+      $or: [
+        { senderId: data.senderId, receiverId: data.receiverId },
+        { senderId: data.receiverId, receiverId: data.senderId },
+      ],
     });
-    await friendRequest.save();
-    if (receiverId) {
-      console.log("send to: " + receiverId);
-      await friendRequest.populate("senderId");
-      io.to(receiverId).emit("newFriendRequest", friendRequest);
+    console.log("check: ", checkResult);
+    if (!checkResult) {
+      const friendRequest = new FriendRequest({
+        senderId: fq.senderId,
+        receiverId: fq.receiverId,
+      });
+      await friendRequest.save();
+      if (receiverId) {
+        console.log("send to: " + receiverId);
+        await friendRequest.populate("senderId");
+        io.to(receiverId).emit("newFriendRequest", friendRequest);
+      }
     }
   });
 
@@ -136,8 +144,6 @@ io.on("connection", (socket) => {
   socket.on("accept friend request", async (fq) => {
     try {
       const receiverId = socketToUserIdMap[fq.senderId._id];
-      console.log("recId: ", receiverId);
-      console.log("senId", fq.senderId);
       const updateResult = await FriendRequest.updateOne(
         { _id: fq._id },
         { $set: { state: "accepted" } }
