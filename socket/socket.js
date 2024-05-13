@@ -204,6 +204,7 @@ io.on("connection", (socket) => {
     });
 
     io.to(receiverId).emit("deleteFriend", data);
+    io.to(socketToUserIdMap[data.senderId]).emit("deleteFriend", data);
   });
   // tao cuoc hoi thoai
   socket.on("create new conversation", async (conversation) => {
