@@ -127,6 +127,7 @@ io.on("connection", (socket) => {
     });
     console.log("check: ", checkResult);
     if (!checkResult) {
+      console.log("thuc thi");
       const friendRequest = new FriendRequest({
         senderId: fq.senderId,
         receiverId: fq.receiverId,
