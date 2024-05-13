@@ -121,8 +121,8 @@ io.on("connection", (socket) => {
     const receiverId = socketToUserIdMap[fq.receiverId];
     const checkResult = await FriendRequest.findOne({
       $or: [
-        { senderId: data.senderId, receiverId: data.receiverId },
-        { senderId: data.receiverId, receiverId: data.senderId },
+        { senderId: fq.senderId, receiverId: fq.receiverId },
+        { senderId: fq.receiverId, receiverId: fq.senderId },
       ],
     });
     console.log("check: ", checkResult);
