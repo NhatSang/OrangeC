@@ -59,6 +59,23 @@ const getConversationByUserId = asyncHandler(async (req, res) => {
   }
 });
 
+const getOneConversation = asyncHandler(async (req, res) => {
+  const { senderId, receiverId } = req.params;
+  try {
+    const conversation = await Conversation.findOne({
+      isGroup: false,
+      members: { $all: [senderId, receiverId] },
+    })
+      .populate("members")
+      .populate("lastMessage")
+      .exec();
+    return res.status(200).json({ success: true, data: conversation });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ success: false });
+  }
+});
+
 const createConversation = asyncHandler(async (req, res) => {
   const { senderId, receiverId } = req.body;
   try {
@@ -183,7 +200,7 @@ const uploadAvatarGroup = asyncHandler(async (req, res) => {
   }
   conversation.image = image;
   await conversation.save();
-  res.status(200).json({ message: "Upload successfully",data:conversation });
+  res.status(200).json({ message: "Upload successfully", data: conversation });
 });
 
 module.exports = {
@@ -193,4 +210,5 @@ module.exports = {
   getAllConversationByUserId,
   uploadAvatarGroup,
   getConversationGroupsByUserId,
+  getOneConversation,
 };

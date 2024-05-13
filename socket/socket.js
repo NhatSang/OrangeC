@@ -147,6 +147,22 @@ io.on("connection", (socket) => {
         console.log("accept to: ", user);
         if (user) io.to(receiverId).emit("acceptFriendRequest", user);
       }
+      const conversation = await Conversation.findOne({
+        isGroup: false,
+        members: { $all: [fq.senderId._Id, fq.receiverId] },
+      });
+      if (!conversation) {
+        const newConversation = await addConversation({
+          nameGroup: "",
+          isGroup: false,
+          administrators: [fq.senderId._Id, fq.receiverId],
+          members: [fq.senderId._Id, fq.receiverId],
+        });
+        newConversation.members.forEach((member) => {
+          const memberId = socketToUserIdMap[member];
+          io.to(memberId).emit("newConversation", newConversation);
+        });
+      }
     } catch (err) {
       console.log(err);
     }

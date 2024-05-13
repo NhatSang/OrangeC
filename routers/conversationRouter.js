@@ -6,6 +6,7 @@ const {
   getAllConversationByUserId,
   uploadAvatarGroup,
   getConversationGroupsByUserId,
+  getOneConversation,
 } = require("../controllers/conversationController");
 
 Router.post("/addconversation", createConversation);
@@ -14,4 +15,6 @@ Router.get("/conversation/:userId", getConversationByUserId);
 Router.get("/allConversations/:userId", getAllConversationByUserId);
 Router.post("/uploadAvatarGroup", uploadAvatarGroup);
 Router.get("/getConversationGroups/:userId", getConversationGroupsByUserId);
+Router.get("/getOneConversation/:senderId/:receiverId", getOneConversation);
+
 module.exports = Router;
