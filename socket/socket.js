@@ -125,17 +125,18 @@ io.on("connection", (socket) => {
         { senderId: fq.receiverId, receiverId: fq.senderId },
       ],
     });
-    console.log("check: ", checkResult);
     if (!checkResult) {
-      console.log("thuc thi");
       const friendRequest = new FriendRequest({
         senderId: fq.senderId,
         receiverId: fq.receiverId,
       });
       await friendRequest.save();
+      await friendRequest.populate("senderId");
+      io.to(socketToUserIdMap[userId]).emit(
+        "responseSendFriendRequest",
+        friendRequest
+      );
       if (receiverId) {
-        console.log("send to: " + receiverId);
-        await friendRequest.populate("senderId");
         io.to(receiverId).emit("newFriendRequest", friendRequest);
       }
     }
