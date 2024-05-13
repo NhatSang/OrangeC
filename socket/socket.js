@@ -149,14 +149,15 @@ io.on("connection", (socket) => {
       }
       const conversation = await Conversation.findOne({
         isGroup: false,
-        members: { $all: [fq.senderId._Id, fq.receiverId] },
+        members: { $all: [fq.senderId._id, fq.receiverId] },
       });
+      console.log("conversation:", conversation);
       if (!conversation) {
         const newConversation = await addConversation({
           nameGroup: "",
           isGroup: false,
-          administrators: [fq.senderId._Id, fq.receiverId],
-          members: [fq.senderId._Id, fq.receiverId],
+          administrators: [fq.senderId._id, fq.receiverId],
+          members: [fq.senderId._id, fq.receiverId],
         });
         newConversation.members.forEach((member) => {
           const memberId = socketToUserIdMap[member];
