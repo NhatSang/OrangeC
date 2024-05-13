@@ -27,14 +27,6 @@ const conversationSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
-    // createdAt: {
-    //   type: Date,
-    //   default: Date.now,
-    // },
-    // updateAt: {
-    //   type: Date,
-    //   default: Date.now,
-    // },
     lastMessage: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Message",
