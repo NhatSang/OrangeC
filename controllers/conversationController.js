@@ -4,44 +4,6 @@ const User = require("../models/User");
 const Conversation = require("../models/Conversation");
 
 const getConversationByUserId = asyncHandler(async (req, res) => {
-  // const { userId } = req.params;
-
-  // try {
-  //   // Step 1: Tìm tất cả các cuộc trò chuyện mà người dùng tham gia và không phải là nhóm
-  //   const conversations = await Conversation.find({
-  //     members: userId,
-  //     isGroup: false,
-  //   })
-  //     .populate("members")
-  //     .exec();
-
-  //   //   if (!conversations || conversations.length === 0) {
-  //   //       return res.status(200).json({ success: false, data: [] });
-  //   //   }
-
-  //   // Step 2: Lặp qua danh sách các cuộc trò chuyện và lấy thông tin người nhận và tin nhắn cuối cùng của mỗi cuộc trò chuyện
-  //   const conversationsWithLastMessage = [];
-  //   for (const conversation of conversations) {
-  //     if (conversation.messages.length > 0) {
-  //       lastMessage = await Message.findOne({
-  //         conversationId: conversation._id,
-  //       })
-  //         .sort({ createAt: -1 })
-  //         .exec();
-  //     }
-  //     conversationsWithLastMessage.push({
-  //       conversation: conversation,
-  //       lastMessage: lastMessage,
-  //     });
-  //   }
-
-  //   return res
-  //     .status(200)
-  //     .json({ success: true, data: conversationsWithLastMessage });
-  // } catch (error) {
-  //   console.error("Error:", error);
-  //   return res.status(500).json({ success: false, data: [] });
-  // }
   const { userId } = req.params;
   try {
     const conversations = await Conversation.find({
