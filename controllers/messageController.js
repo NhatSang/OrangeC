@@ -35,6 +35,7 @@ const createMessage = async (msg) => {
       isSend: msg.isSend,
       isReCall: msg.isReCall,
       fileName: msg.fileName,
+      reply: msg.reply,
     });
 
     (await message.save()).populate("senderId");
