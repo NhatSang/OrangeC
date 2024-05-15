@@ -38,12 +38,7 @@ const messageSchema = new mongoose.Schema({
   typeFile: { type: String, default: "" },
   fileName: { type: String, default: "" },
   isReCall: { type: Boolean, default: false },
-  reply: [
-    {
-      messageId: { type: mongoose.Schema.Types.ObjectId, ref: "Message" },
-      userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    },
-  ],
+  reply:{ type: Object, default: null },
   deleteBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 });
 
