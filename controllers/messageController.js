@@ -14,6 +14,7 @@ const getAllMessage = asyncHandler(async (req, res) => {
   // }
   const messages = await Message.find({ conversationId })
     .populate("senderId")
+    .populate("reaction.userId")
     .exec();
   return res.status(200).json({ success: true, data: messages });
 });

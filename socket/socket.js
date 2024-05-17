@@ -35,10 +35,13 @@ let socketToUserIdMap = {};
 
 io.on("connection", (socket) => {
   console.log("new user connection " + socket.id);
+
   // mapping socketId by userId
   const userId = socket.handshake.query.userId;
   console.log(userId);
   if (userId != "undefined") socketToUserIdMap[userId] = socket.id;
+
+  console.log("alluser: ", socketToUserIdMap);
 
   socket.on("chat message", async (msg) => {
     const message = await createMessage(msg);
