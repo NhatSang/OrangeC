@@ -14,6 +14,7 @@ const FriendRequest = require("../models/FriendRequest");
 const User = require("../models/User");
 const Conversation = require("../models/Conversation");
 const { addConversation } = require("../controllers/conversationController");
+const { log } = require("console");
 
 const app = express();
 app.use(cros());
@@ -48,6 +49,7 @@ io.on("connection", (socket) => {
     const conversation = await Conversation.findOne({
       _id: msg.conversationId,
     });
+    log("conversation: ", conversation);
     conversation.members.forEach((member) => {
       const receiverId = socketToUserIdMap[member.toString()];
       io.to(receiverId).emit("chat message", message);
