@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 
 const stickerSchema = new mongoose.Schema({
-  name: String,
-  urlImage: [{ type: String }],
+  title: String,
+  data: [{ id:String,url:String }],
 });
 
 const Sticker = mongoose.model("Sticker", stickerSchema);

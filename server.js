@@ -4,6 +4,7 @@ const authRouter = require("./routers/authRouter");
 const messageRouter = require("./routers/messageRouter");
 const conversationRouter = require("./routers/conversationRouter");
 const friendRequestRouter = require("./routers/friendRequestRouter");
+const stickersRouter = require("./routers/stickerRouter");
 const error = require("./middlewares/responseMiddleware");
 const connectDB = require("./db/connectDB");
 const { app, server } = require("./socket/socket");
@@ -19,6 +20,7 @@ app.use("/api/v1", authRouter);
 app.use("/api/v1", messageRouter);
 app.use("/api/v1", conversationRouter);
 app.use("/api/friend", friendRequestRouter);
+app.use("/api/v1",stickersRouter);
 app.use(error);
 
 server.listen(PORT, () => {
