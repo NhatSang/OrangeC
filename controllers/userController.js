@@ -68,11 +68,11 @@ const register = asyncHandler(async (req, res) => {
     res.status(400).json({ message: "Email already exists" });
     throw new Error("Email already exists");
   }
-  const existingPhone = await User.findOne({ phone: req.body.phone });
-  if (existingPhone) {
-    res.status(400).json({ message: "Phone already exists" });
-    throw new Error("Phone already exists");
-  }
+  // const existingPhone = await User.findOne({ phone: req.body.phone });
+  // if (existingPhone) {
+  //   res.status(400).json({ message: "Phone already exists" });
+  //   throw new Error("Phone already exists");
+  // }
 
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(req.body.password, salt);
