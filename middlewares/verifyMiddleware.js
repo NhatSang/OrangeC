@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken')
 const asyncHandler = require('express-async-handler')
 
 const verifyToken = asyncHandler(async (req, res, next) => {
-    const acccessToken = req.headers.authorization;
+    const acccessToken = req.headers.authorization.startsWith('Bearer') && req.headers.authorization;
     const token = acccessToken && acccessToken.split(' ')[1];
     if (!token) {
         return res.status(401).json(
