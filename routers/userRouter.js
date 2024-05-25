@@ -9,7 +9,7 @@ Router.post('/auth/register', register);
 Router.post('/auth/login', login);
 Router.get("/users",verifyToken,findUsers);
 Router.post('/uploadAvatar',verifyToken,uploadAvatar);
-Router.post('/checkInfo',verifyToken,checkInfo);
+Router.post('/checkInfo',checkInfo);
 Router.post('/editProfile',verifyToken,editProfile);
 Router.post('/changePassword',verifyToken,changePassword);
 Router.post('/changePassword1',changePassword1);
