@@ -5,6 +5,7 @@ const messageRouter = require("./routers/messageRouter");
 const conversationRouter = require("./routers/conversationRouter");
 const friendRequestRouter = require("./routers/friendRequestRouter");
 const stickersRouter = require("./routers/stickerRouter");
+const verifyToken = require("./middlewares/verifyMiddleware");
 const error = require("./middlewares/responseMiddleware");
 const connectDB = require("./db/connectDB");
 const { app, server } = require("./socket/socket");
@@ -17,10 +18,10 @@ app.get("/", (req, res) => {
 });
 app.use("/api/v1", userRouter);
 app.use("/api/v1", authRouter);
-app.use("/api/v1", messageRouter);
-app.use("/api/v1", conversationRouter);
-app.use("/api/friend", friendRequestRouter);
-app.use("/api/v1",stickersRouter);
+app.use("/api/v1",verifyToken, messageRouter);
+app.use("/api/v1",verifyToken, conversationRouter);
+app.use("/api/friend",verifyToken, friendRequestRouter);
+app.use("/api/v1",verifyToken,stickersRouter);
 app.use(error);
 
 server.listen(PORT, () => {
